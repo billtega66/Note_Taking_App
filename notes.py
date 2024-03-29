@@ -123,9 +123,17 @@ def main():
             
         elif cmd == 'add':
             file_name = input("Enter name of file to add note to: ")
-            note = input("Enter your note: ")
+            print("Enter your notes (type #END# to stop): \n")
+            write = 'h0ld'
+            note = ''
+            while(write!='#END#'):
+                write = input()
+                if(write !='#END#'):
+                    note += write + '\n'
+
             notes_manager.add_note(file_name, note)
-            
+
+
         elif cmd == 'print':
             file_name = input("Enter name of file to print: ")
             notes_manager.get_notes(file_name)
