@@ -138,9 +138,8 @@ class NoteManager:
         if not file_name.endswith('.txt'):
             file_name += '.txt'
         file_path = self.get_file_path(file_name)
-        timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         with open(file_path, 'a') as file:
-            file.write(f"{timestamp} - {note}\n")
+            file.write(f"{note}")
         print("Note added successfully.")
 
     def get_notes(self, file_name):
