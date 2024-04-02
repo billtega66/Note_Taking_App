@@ -92,6 +92,8 @@ notes_manager = backends.NoteManager("notes_directory")
 
 def print_help():
     print("Commands:")
+    print("  newf - Create a new folder")
+    print("  change - Switches current folder")
     print("  new - Create a new file") 
     print("  delete - Delete a file")
     print("  add - Add a note to a file")
@@ -113,6 +115,16 @@ def main():
         elif cmd == 'help':
             print_help()
             
+        elif cmd == 'newf':
+            folder_name = input("Enter name for new folder: ")
+            notes_manager.create_folder(folder_name)
+            notes_manager.createDirectory()
+            print("Folder created. \n")
+
+        elif cmd == 'change':
+            folder_name = input("Enter name for folder: ")
+            notes_manager.change_folder(folder_name)
+
         elif cmd == 'new':
             file_name = input("Enter name for new file: ")
             notes_manager.create_new_file(file_name)

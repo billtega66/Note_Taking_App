@@ -116,13 +116,30 @@ class NoteManager:
 
     def get_file_path(self, file_name):
         return os.path.join(self.notes_directory, file_name)
+    
+    def createDirectory(self):
+        if not os.path.exists(self.notes_directory):
+            os.makedirs(self.notes_directory)
+    
+    def create_folder(self, foldername):
+        self.notes_directory = foldername + "/"
+        if os.path.exists(self.notes_directory):
+            self.notes_directory = foldername + '(' + '1' + ')' + "/"
+            num = int(self.notes_directory[-3])
+            while os.path.exists(self.notes_directory):
+                num = num + 1
+                self.notes_directory = foldername + '(' + str(num) + ')' + "/" 
+        
+    
+    def change_folder(self, foldername):
+        self.notes_directory = foldername
 
     def create_new_file(self, file_name):
         if not file_name.endswith('.txt'):
             file_name += '.txt'
         file_path = self.get_file_path(file_name)
         open(file_path, 'w').close()
-        print("New file '{file_name}' created.")
+        print(f"New file '{file_name}' created.")
 
     def delete_file(self, file_name):
         if not file_name.endswith('.txt'):
