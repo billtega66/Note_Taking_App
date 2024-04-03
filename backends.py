@@ -132,7 +132,10 @@ class NoteManager:
         
     
     def change_folder(self, foldername):
-        self.notes_directory = foldername
+        if os.path.exists(foldername):
+            self.notes_directory = foldername
+        else:
+            print("Folder does not exist.")
 
     def create_new_file(self, file_name):
         if not file_name.endswith('.txt'):
