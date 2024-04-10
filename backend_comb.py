@@ -1,5 +1,7 @@
 import os
 import datetime
+from rich.console import Console
+from rich.markdown import Markdown
 
 class NoteManager:
     def __init__(self, notes_directory):
@@ -110,19 +112,25 @@ class NoteManager:
                     return stored_password == password
         return False
 
-    def display_notes(self, priority=None):
-            if priority:
-                filtered_notes = [note for note in self.notes if note.priority == priority]
-                for note in sorted(filtered_notes, key=lambda x: x.priority):
-                    print(note)
-                    print("-" * 20) 
-            else:
-                for note in sorted(self.notes, key=lambda x: x.priority):
-                    print(note)
-                    print("-" * 20) 
-        
-        def find_note(self, title):
-            for note in self.notes:
-                if note.title == title:
-                    return note
-            return None
+    def get_list(self, foldername):
+        if os.path.exists(foldername):
+            return os.listdir(foldername)
+        else:
+            print("Folder does not exist.")
+
+    # def display_notes(self, priority=None):
+    #         if priority:
+    #             filtered_notes = [note for note in self.notes if note.priority == priority]
+    #             for note in sorted(filtered_notes, key=lambda x: x.priority):
+    #                 print(note)
+    #                 print("-" * 20)
+    #         else:
+    #             for note in sorted(self.notes, key=lambda x: x.priority):
+    #                 print(note)
+    #                 print("-" * 20)
+    #
+    #     def find_note(self, title):
+    #         for note in self.notes:
+    #             if note.title == title:
+    #                 return note
+    #         return None
