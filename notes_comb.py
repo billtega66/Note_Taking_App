@@ -76,6 +76,7 @@ def main():
     print_help()
     
     while True:
+        notes_manager.createDirectory()
         choice = input("Enter a command: ")
         
         if choice == 'quit':
@@ -124,7 +125,6 @@ def main():
         elif choice == 'newf':
             folder_name = input("Enter name for new folder: ")
             notes_manager.create_folder(folder_name)
-            print("Folder created.")
 
         elif choice == 'change':
             folder_name = input("Enter name for folder: ")
