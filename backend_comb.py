@@ -15,15 +15,16 @@ class NoteManager:
     def createDirectory(self):
         if not os.path.exists(self.notes_directory):
             os.makedirs(self.notes_directory)
+            print("Folder created.")
     
     def create_folder(self, foldername):
-        self.notes_directory = foldername + "/"
+        self.notes_directory = foldername
         if os.path.exists(self.notes_directory):
-            self.notes_directory = foldername + '(' + '1' + ')' + "/"
+            self.notes_directory = foldername + '(' + '1' + ')'
             num = int(self.notes_directory[-3])
             while os.path.exists(self.notes_directory):
                 num = num + 1
-                self.notes_directory = foldername + '(' + str(num) + ')' + "/" 
+                self.notes_directory = foldername + '(' + str(num) + ')'
 
     def delete_folder(self, foldername):
         if os.path.exists(foldername):
