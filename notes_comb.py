@@ -1,4 +1,4 @@
-import backends
+import backend_comb
 import requests
 from rich.console import Console
 from rich.markdown import Markdown
@@ -7,7 +7,7 @@ from rich.layout import Panel
 
 
 console = Console()
-notes_manager = backends.NoteManager("notes_directory")
+notes_manager = backend_comb.NoteManager("notes_directory")
 
 API_URL = "http://127.0.0.1:5000"  # Localhost and the default Flask port
 
