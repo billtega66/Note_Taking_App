@@ -1,24 +1,27 @@
-import backend_comb
+import backends
+import requests
 from rich.console import Console
 from rich.markdown import Markdown
 from rich.layout import Layout
 from rich.layout import Panel
 
+
 console = Console()
-notes_manager = backend_comb.NoteManager("notes_directory")
+notes_manager = backends.NoteManager("notes_directory")
+
+API_URL = "http://127.0.0.1:5000"  # Localhost and the default Flask port
 
 def print_help():
+    # Setting up the layout for the help menu
     layout = Layout()
     layout.split_column(Layout(name="upper"), Layout(name="lower"))
     layout["lower"].split_row(Layout(name="left"), Layout(name="right"))
     current_directory = notes_manager.notes_directory
     note_list = str(notes_manager.get_list(current_directory))
-    # note_list = []
-    # for i in range(len(note_list)):
-    #     note_list += note_list[i]
 
+    # Displaying the current directory and available commands
     layout["upper"].update(Panel(f"[bold magenta]|Current Directory:[/bold magenta] \\{current_directory}"
-                                 f"\n\n[yellow] Contents:  [/yellow]{note_list}"
+                                 f"\n\n[yellow] Contents:  [yellow]{note_list}"
                                  ))
     layout["left"].update(
         Panel(
@@ -52,30 +55,21 @@ def print_help():
     main_panel = Panel(layout, title="[bold magenta]<Note Taking App>[/bold magenta]", subtitle="", height=17,
                        width=100)
     console.print(main_panel)
-    # print("Commands:")
-    # print("  note - Create a quick note")
-    # print("  delete - Delete a file")
-    # print("  add - Add a note to a file")
-    # print("  print - Print notes from a file")
-    # print("  search - Print all notes from a file")
-    # print("  newf - Create a new folder")
-    # print("  change - Switch current folder")
-    # #print("  new - Create a new file")
-    # print("  deletef - Delete a folder")
-    # print("  help - Print this help")
-    # print("  quit - Exit the program")
 
 def display():
+    # Displaying the current directory and its contents
     current_directory = notes_manager.notes_directory
     note_list = str(notes_manager.get_list(current_directory))
     display = Panel(f"[bold magenta]|Current Directory:[/bold magenta] \\{current_directory}"
             f"\n\n[yellow] Contents:  [/yellow]{note_list}",title="[bold magenta]<Content>[/bold magenta]", subtitle="", height=5,
                        width=100)
     console.print(display)
+
 def main():
     print_help()
     
     while True:
+        # Loop to continuously prompt for user input
         notes_manager.createDirectory()
         choice = input("Enter a command: ")
         
@@ -86,6 +80,7 @@ def main():
             print_help()
 
         elif choice == 'note':
+            # Creating a new note
             file_name = input("Enter name for new file: ")
             password_protected = input("Would you like to make this note password-protected? (yes/no): ").lower()
             if password_protected == 'yes':
@@ -98,43 +93,84 @@ def main():
             notes_manager.get_notes(file_name)
            
         elif choice == 'delete':
+            # Deleting a file
             display()
             file_name = input("Enter name of file to delete: ")
-            notes_manager.delete_file(file_name)
+            response = requests.delete(f'http://127.0.0.1:5000/notes/{file_name}')
+            print(response.json()['message'])
             
         elif choice == 'add':
+            # Adding a note to a file
             display()
             file_name = input("Enter name of file to add note to: ")
             note = input("Enter your note: ")
             password = input("Enter password for the note (if applicable): ")
-            notes_manager.add_note(file_name, note, password)
-            notes_manager.get_notes(file_name, password)
+            params = {
+                'file_name': file_name,
+                'note': note,
+                'password': password
+            }
+            response = requests.post(f"{API_URL}/notes/add", params=params)
+            if response.status_code == 201:
+                print("Note added successfully.")
+            else:
+                print(f"Failed to retrieve notes: {response.json().get('error', 'Unknown Error')}")
+            
+
          
         elif choice == 'print':
-            file_name = input("Enter name of file to print: ")
-            password = input("Enter password for the note (if applicable): ")
-            notes_manager.get_notes(file_name, password)
+            # Printing notes from a file
+            display()
+            file_name = input("Enter the filename: ")
+            password = input("Enter password (if any): ")
+            params = {
+                'file_name': file_name,
+                'password': password
+            }
+            response = requests.get(f"{API_URL}/notes/print", params=params)
+            if response.status_code == 200:
+                print("Notes:")
+                print(response.text)
+            else:
+                print(f"Failed to retrieve notes: {response.json().get('error', 'Unknown Error')}")
             
         elif choice == 'search':
+            # Searching for notes in a file
             display()
-            file_name = input("Enter name of file to search: ")
-            query = input("Enter search term: ")
-            password = input("Enter password for the note (if applicable): ")
-            notes_manager.search_notes(file_name, query, password)
+            file_name = input("Enter the filename: ")
+            query = input("Enter the search query: ")
+            password = input("Enter password (if any): ")
+            params = {
+                'file_name': file_name,
+                'query': query,
+                'password': password
+            }
+            response = requests.get(f"{API_URL}/notes/search", params=params)
+            if response.status_code == 200:
+                print("Search Results:")
+                notes = response.json()
+                for note in notes:
+                    print(note)
+            else:
+                print(f"Failed to retrieve notes: {response.json().get('error', 'Unknown Error')}")
 
         elif choice == 'newf':
+            # Creating a new folder
             folder_name = input("Enter name for new folder: ")
             notes_manager.create_folder(folder_name)
 
         elif choice == 'change':
+            # Changing the current folder
             folder_name = input("Enter name for folder: ")
             notes_manager.change_folder(folder_name)
 
         elif choice == 'new':
+            # Creating a new file
             file_name = input("Enter name for new file: ")
             notes_manager.create_new_file(file_name)
 
         elif choice == 'deletef':
+            # Deleting a folder
             folder_name = input("Enter name of folder to delete: ")
             notes_manager.delete_folder(folder_name)
 
