@@ -27,9 +27,11 @@ def print_help():
         Panel(
             "\n"
             "   [green]newf[/green]    Create a new folder\n"
+            "   [green]deletef[/green] Delete a folder\n"
             "   [green]change[/green]  Switches current folder\n"
             "   [green]help[/green]    Print this help\n"
             "   [green]quit[/green]    Exit the program\n"
+
             ,
             title="[bold][cyan]Program Commands[/cyan][/bold]",
             subtitle="", subtitle_align="right"

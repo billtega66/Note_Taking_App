@@ -31,7 +31,7 @@ class NoteManager:
 
     def delete_folder(self, foldername):
         if os.path.exists(foldername):
-            choice = input("Are you sure? ")
+            choice = input("Are you sure? yes/no: ")
             if choice == 'yes':
                 try:
                     os.rmdir(foldername)
