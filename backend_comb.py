@@ -33,7 +33,22 @@ class NoteManager:
         if os.path.exists(foldername):
             choice = input("Are you sure? ")
             if choice == 'yes':
-                os.rmdir(foldername)
+                try:
+                    os.rmdir(foldername)
+                except:
+                    choice = input("Folder contains files. Do you want them to be deleted? ")
+                    if choice == 'yes':
+                        oldfolder = self.notes_directory
+                        print("")
+                        self.change_folder(foldername)
+                        dir = os.listdir(foldername)
+                        for file in dir:
+                            print(file + " has been deleted.")
+                            file = self.get_file_path(file)
+                            os.remove(file)
+                        os.rmdir(foldername)
+                        print("Folder deleted.")
+                        self.change_folder(oldfolder)
         else:
             print("Folder does not exist.")
         
