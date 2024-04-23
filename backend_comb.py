@@ -1,7 +1,6 @@
-import os
 import datetime
-from rich.console import Console
-from rich.markdown import Markdown
+import os
+
 from flask import Flask, request, jsonify
 
 app = Flask(__name__)
@@ -100,6 +99,7 @@ class NoteManager:
                 if not self.check_password(file_path, password):
                     return jsonify({"error": "Incorrect password. Access denied."}), 401
             with open(file_path, 'r') as file:
+                self.cls()
                 return file.read(), 200
         except FileNotFoundError:
             return jsonify({"error": "File does not exist."}), 404
@@ -136,6 +136,23 @@ class NoteManager:
             return os.listdir(foldername)
         else:
             print("Folder does not exist.")
+
+    def get_dir(self):
+        directories_in_curdir = list(filter(os.path.isdir, os.listdir(os.curdir)))
+        output = []
+        for f in directories_in_curdir:
+            if not f.startswith('.'):
+                if not f.startswith('_') :
+                    output.append(f)
+
+        return output
+
+    @staticmethod
+    def cls():
+        clear = lambda: os.system('cls')
+        clear()
+
+
 #############################
 note_manager = NoteManager("notes_directory")
 

@@ -18,10 +18,12 @@ def print_help():
     layout["lower"].split_row(Layout(name="left"), Layout(name="right"))
     current_directory = notes_manager.notes_directory
     note_list = str(notes_manager.get_list(current_directory))
+    count = len(notes_manager.get_list(current_directory))
+    additional_length = count/7
 
     # Displaying the current directory and available commands
     layout["upper"].update(Panel(f"[bold magenta]|Current Directory:[/bold magenta] \\{current_directory}"
-                                 f"\n\n[yellow] Contents:  [yellow]{note_list}"
+                                 f"\n\n[yellow] Contents:  [yellow]{note_list} "
                                  ))
     layout["left"].update(
         Panel(
@@ -52,9 +54,9 @@ def print_help():
         )
     )
 
-    layout["upper"].size = 5
+    layout["upper"].size = 5 + int(additional_length)
     layout["lower"].size = 9
-    main_panel = Panel(layout, title="[bold magenta]<Note Taking App>[/bold magenta]", subtitle="", height=17,
+    main_panel = Panel(layout, title="[bold magenta]<Note Taking App>[/bold magenta]", subtitle="", height=17+int(additional_length),
                        width=100)
     console.print(main_panel)
 
@@ -66,6 +68,33 @@ def display():
             f"\n\n[yellow] Contents:  [/yellow]{note_list}",title="[bold magenta]<Content>[/bold magenta]", subtitle="", height=5,
                        width=100)
     console.print(display)
+
+def display_dir():
+    current_directory = notes_manager.notes_directory
+    dir_list = notes_manager.get_dir()
+    dir_list.remove(current_directory)
+    if not dir_list:
+        dir_list = "There exists no other directory."
+    display = Panel(f"[bold magenta]|Current Directory:[/bold magenta] \\{current_directory}"
+                    f"\n\n[magenta] Other Directories:  {dir_list}[/magenta]", title="[bold magenta]<Directory>[/bold magenta]",
+                    subtitle="", height=5,
+                    width=100)
+    console.print(display)
+
+
+def display_notes(response,file_name):
+    current_directory = notes_manager.notes_directory
+    count = 5
+    lines = response.text.split('\n')
+    for i in lines: count += 1
+    display = Panel(f"[bold magenta]|Current Path:[/bold magenta] \\{current_directory}\\{file_name}.txt"
+                    f"\n\n{response.text}",
+                    title=f"[bold magenta]<Note>[/bold magenta]",
+                    subtitle="", height=count,
+                    width=100)
+    console.print(display)
+
+
 
 def main():
     print_help()
@@ -79,6 +108,7 @@ def main():
             break
             
         elif choice == 'help':
+            notes_manager.cls()
             print_help()
 
         elif choice == 'note':
@@ -131,8 +161,8 @@ def main():
             }
             response = requests.get(f"{API_URL}/notes/print", params=params)
             if response.status_code == 200:
-                print("Notes:")
-                print(response.text)
+                notes_manager.cls()
+                display_notes(response,file_name)
             else:
                 print(f"Failed to retrieve notes: {response.json().get('error', 'Unknown Error')}")
             
@@ -163,6 +193,7 @@ def main():
 
         elif choice == 'change':
             # Changing the current folder
+            display_dir()
             folder_name = input("Enter name for folder: ")
             notes_manager.change_folder(folder_name)
 
@@ -173,6 +204,7 @@ def main():
 
         elif choice == 'deletef':
             # Deleting a folder
+            display_dir()
             folder_name = input("Enter name of folder to delete: ")
             notes_manager.delete_folder(folder_name)
 
