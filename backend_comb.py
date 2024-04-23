@@ -136,6 +136,67 @@ class NoteManager:
             return os.listdir(foldername)
         else:
             print("Folder does not exist.")
+
+
+
+    def add_checklist_item(self, file_path, item_text):
+        """Add an item to the checklist in the file."""
+        with open(file_path, 'a') as file:
+            file.write(f"[ ] {item_text}\n")
+        print("Item added to the checklist successfully!")
+
+    def check_item(self, file_path, item_index):
+        """Mark an item in the checklist as checked."""
+        lines = []
+        with open(file_path, 'r') as file:
+            lines = file.readlines()
+
+        if 0 <= item_index < len(lines):
+            lines[item_index] = lines[item_index].replace("[ ]", "[x]", 1)
+
+            with open(file_path, 'w') as file:
+                file.writelines(lines)
+            print("Item checked successfully!")
+        else:
+            print("Invalid item index.")
+
+    def uncheck_item(self, file_path, item_index1):
+        """Unmarked an item in the checklist"""
+        lines = []
+        with open(file_path, 'r') as file:
+            lines = file.readlines()
+
+        if 0 <= item_index1 < len(lines):
+            lines[item_index1] = lines[item_index1].replace("[x]", "[ ]", 1)
+
+            with open(file_path, 'w') as file:
+                file.writelines(lines)
+            print("Item unchecked successfully!")
+        else:
+            print("Invalid item index.")
+
+    def display_checklist(self, file_path):
+        """Display the checklist."""
+        with open(file_path, 'r') as file:
+            print("Checklist:")
+            for index, line in enumerate(file):
+                print(f"{index}: {line.strip()}")
+
+    def delete_checklist_choice(self, file_path, item_index):
+        """Delete checklist choice"""
+        lines = []
+        with open(file_path, 'r') as file:
+            lines = file.readlines()
+
+        if 0 <= item_index < len(lines):
+            del lines[item_index]
+
+            with open(file_path, 'w') as file:
+                file.writelines(lines)
+            print("Item deleted successfully!")
+        else:
+            print("Invalid item index.") 
+    
 #############################
 note_manager = NoteManager("notes_directory")
 
@@ -182,8 +243,41 @@ def delete_note(file_name):
 if __name__ == '__main__':
     app.run(debug=True)
 
+# Route for adding a checklist item
+@app.route('/checklist/<file_name>', methods=['POST'])
+def add_checklist_item(file_name):
+    item_text = request.json.get('item_text')
+    file_path = note_manager.get_file_path(file_name)
+    note_manager.add_checklist_item(file_path, item_text)
+    return jsonify({'message': 'Checklist item added successfully'})
 
+# Route for checking a checklist item
+@app.route('/checklist/<file_name>/<int:item_index>', methods=['PUT'])
+def check_checklist_item(file_name, item_index):
+    file_path = note_manager.get_file_path(file_name)
+    note_manager.check_item(file_path, item_index)
+    return jsonify({'message': 'Checklist item checked successfully'})
 
+# Route for unchecking a checklist item
+@app.route('/checklist/<file_name>/<int:item_index>', methods=['DELETE'])
+def uncheck_checklist_item(file_name, item_index):
+    file_path = note_manager.get_file_path(file_name)
+    note_manager.uncheck_item(file_path, item_index)
+    return jsonify({'message': 'Checklist item unchecked successfully'})
+
+# Route for displaying the checklist
+@app.route('/checklist/<file_name>', methods=['GET'])
+def display_checklist(file_name):
+    file_path = note_manager.get_file_path(file_name)
+    note_manager.display_checklist(file_path)
+    return jsonify({'message': 'Checklist displayed successfully'})
+
+# Route for deleting a checklist item
+@app.route('/checklist/<file_name>/<int:item_index>', methods=['DELETE'])
+def delete_checklist_item(file_name, item_index):
+    file_path = note_manager.get_file_path(file_name)
+    note_manager.delete_checklist_choice(file_path, item_index)
+    return jsonify({'message': 'Checklist item deleted successfully'})
 
 # class Node: 
 #     def __init__(self, question,answer):
