@@ -114,6 +114,7 @@ class NoteManager:
                 if not self.check_password(file_path, password):
                     return jsonify({"error": "Incorrect password. Access denied."}), 401
             with open(file_path, 'r') as file:
+                self.cls()
                 return file.read(), 200
         except FileNotFoundError:
             return jsonify({"error": "File does not exist."}), 404
@@ -150,6 +151,23 @@ class NoteManager:
             return os.listdir(foldername)
         else:
             print("Folder does not exist.")
+
+    def get_dir(self):
+        directories_in_curdir = list(filter(os.path.isdir, os.listdir(os.curdir)))
+        output = []
+        for f in directories_in_curdir:
+            if not f.startswith('.'):
+                if not f.startswith('_') :
+                    output.append(f)
+
+        return output
+
+    @staticmethod
+    def cls():
+        clear = lambda: os.system('cls')
+        clear()
+
+
 
 
 
@@ -209,7 +227,7 @@ class NoteManager:
                 file.writelines(lines)
             print("Item deleted successfully!")
         else:
-            print("Invalid item index.") 
+            print("Invalid item index.")
 
     def add_photo_to_note(self, file_name, photo_file):
         if not file_name.endswith('.txt'):
@@ -220,17 +238,17 @@ class NoteManager:
         with open(self.get_file_path(file_name), 'a') as file:
             file.write(f"[img:{photo_path}]\n")
 
-    
-    
-class Node: 
+
+
+class Node:
     def __init__(self, question,answer):
         self.question = question
         self.answer = answer
         self.next = None
-   
 
-class linked_list(Node): 
-    def __init__ (self): 
+
+class linked_list(Node):
+    def __init__ (self):
         self.head = None
 
     def insertAtEnd(self,question,answer):
@@ -238,22 +256,22 @@ class linked_list(Node):
         if self.head is None:
             self.head = new_node
             return
-        
+
         current_node = self.head
         while (current_node.next != None):
             current_node = current_node.next
-            
-            
+
+
         current_node.next = new_node
 
-        
-    
+
+
     def remove_first_node(self):
         if(self.head == None):
             return
- 
+
         self.head = self.head.next
-        
+
     def remove_at_index(self, index):
         if self.head == None:
             return
@@ -265,19 +283,19 @@ class linked_list(Node):
             while(current_node != None and position+1 != index):
                 position = position+1
                 current_node = current_node.next
- 
+
             if current_node != None:
                 current_node.next = current_node.next.next
             else:
                 print("Index not present")
-        
+
 
 class flash_cards(linked_list, NoteManager):
     def __init__(self, notes_directory):
-        
-        linked_list.__init__(self) 
-        NoteManager.__init__(self, notes_directory)  
-        self.head = None  
+
+        linked_list.__init__(self)
+        NoteManager.__init__(self, notes_directory)
+        self.head = None
 
     def Instructions(self):
         print("You are attempting to run this file as flash cards. Here are some things to keep in mind to assure it runs correctly: ")
@@ -297,7 +315,7 @@ class flash_cards(linked_list, NoteManager):
                 length = len(lines)
                 if (length % 2 != 0):
                     print("Not enough lines to make cards")
-                    return 
+                    return
                 count = 0
                 while (count <= length - 1):
                     Q = lines[count]
@@ -312,34 +330,34 @@ class flash_cards(linked_list, NoteManager):
     def test(card_pile):
         if card_pile.head is None:
             print("PILE IS EMPTY")
-            return 
-        
+            return
+
         print("Now beginning the test...")
         print()
-        
+
         current = card_pile.head
         while ((current != None)):
             index = 0
             while ((current != None)):
-                user_input = input(current.question) 
+                user_input = input(current.question)
                 answer = current.answer
-                
+
                 if (answer.lower() == (user_input.lower() + '\n') or answer.lower() == user_input.lower()):
                     print("Correct! Removing from pile")
                     print()
-                    current = current.next 
+                    current = current.next
                     card_pile.remove_at_index(index)
-                else: 
+                else:
                     print("Incorrect. The correct answer is: %s" %current.answer)
                     print()
-                    current = current.next 
-                    index = index + 1 
+                    current = current.next
+                    index = index + 1
             current = card_pile.head
-            
-        print("All questions have been answered correctly")
-    
 
-        
+        print("All questions have been answered correctly")
+
+
+
 #############################
 note_manager = NoteManager("notes_directory")
 card_pile = flash_cards("notes_directory")
@@ -427,7 +445,7 @@ def add_note_route():
         return jsonify({'message': 'Note added successfully'}), 201
     else:
         return jsonify({'error': 'Missing file_name parameter'}), 400
-    
+
 
 # @app.route('/create_cards', methods=['POST'])
 # def create_cards():
