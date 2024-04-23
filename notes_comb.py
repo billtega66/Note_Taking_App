@@ -175,7 +175,33 @@ def main():
             # Deleting a folder
             folder_name = input("Enter name of folder to delete: ")
             notes_manager.delete_folder(folder_name)
+            
+        elif choice == 'checklist':
+            print("Entering checklist mode...")
+            while True:
+                checklist_choice = input("Checklist Menu:\n1. Add item\n2. Check item\n3. Uncheck item\n4. Display checklist\n5. Delete checklist\n6. Exit\nEnter your choice: ")
+                if checklist_choice == '1':
+                    item_text = input("Enter the checklist item: ")
+                    notes_manager.add_checklist_item(checklist_file_path, item_text)
+                    
+                elif checklist_choice == '2':
+                    item_index = int(input("Enter the index of the item to check off: "))
+                    notes_manager.check_item(checklist_file_path, item_index-1)
 
+                elif checklist_choice == '3':
+                    item_index1 = int(input("Enter the index of the item to uncheck: "))
+                    notes_manager.uncheck_item(checklist_file_path, item_index1-1)
+                elif checklist_choice == '4':
+                    notes_manager.display_checklist(checklist_file_path)
+
+                elif checklist_choice == '5':
+                    item_index = int(input("Enter the index of the item to delete: "))
+                    notes_manager.delete_checklist_choice(checklist_file_path, item_index-1)
+
+                elif checklist_choice == '6':
+                    break
+                else:
+                    print("Invalid choice. Please try again.")
         else:
             print("Invalid command. Enter 'help' to see available commands.")
             
