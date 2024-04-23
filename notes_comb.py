@@ -8,6 +8,7 @@ from rich.layout import Panel
 
 console = Console()
 notes_manager = backend_comb.NoteManager("notes_directory")
+checklist_file_path = "checklist.txt"
 
 API_URL = "http://127.0.0.1:5000"  # Localhost and the default Flask port
 
