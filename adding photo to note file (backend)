@@ -234,3 +234,137 @@ def main():
 
 if __name__ == '__main__':
     main()
+
+
+
+
+
+
+#front end implementation 
+import os
+import datetime
+import shutil
+from flask import Flask, request, jsonify
+from werkzeug.utils import secure_filename
+
+app = Flask(__name__)
+
+class NoteManager:
+    def __init__(self, notes_directory):
+        self.notes_directory = notes_directory
+        if not os.path.exists(notes_directory):
+            os.makedirs(notes_directory)
+
+    def get_file_path(self, file_name):
+        return os.path.join(self.notes_directory, file_name)
+
+    def createDirectory(self):
+        if not os.path.exists(self.notes_directory):
+            os.makedirs(self.notes_directory)
+            print("Folder created.")
+
+    def add_photo_to_note(self, file_name, photo_file):
+        if not file_name.endswith('.txt'):
+            file_name += '.txt'
+        photo_filename = secure_filename(photo_file.filename)
+        photo_path = os.path.join(self.notes_directory, 'photos', photo_filename)
+        photo_file.save(photo_path)
+        with open(self.get_file_path(file_name), 'a') as file:
+            file.write(f"[img:{photo_path}]\n")
+
+    # Other methods remain unchanged...
+
+note_manager = NoteManager("notes_directory")
+
+@app.route('/notes/add', methods=['POST'])
+def add_note_route():
+    file_name = request.args.get('file_name')
+    note_text = request.args.get('note')
+    photo_file = request.files.get('photo')
+
+    if file_name:
+        if note_text:
+            note_manager.add_note(file_name, note_text)
+        if photo_file:
+            note_manager.add_photo_to_note(file_name, photo_file)
+        return jsonify({'message': 'Note added successfully'}), 201
+    else:
+        return jsonify({'error': 'Missing file_name parameter'}), 400
+
+@app.route('/upload/photo', methods=['POST'])
+def upload_photo():
+    if 'photo' not in request.files:
+        return jsonify({'error': 'No file part'}), 400
+    photo_file = request.files['photo']
+    if photo_file.filename == '':
+        return jsonify({'error': 'No selected file'}), 400
+    if photo_file and allowed_file(photo_file.filename):
+        filename = secure_filename(photo_file.filename)
+        photo_file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+        return jsonify({'message': 'File uploaded successfully'}), 201
+    else:
+        return jsonify({'error': 'Invalid file type'}), 400
+import os
+import datetime
+import shutil
+from flask import Flask, request, jsonify
+from werkzeug.utils import secure_filename
+
+app = Flask(__name__)
+
+class NoteManager:
+    def __init__(self, notes_directory):
+        self.notes_directory = notes_directory
+        if not os.path.exists(notes_directory):
+            os.makedirs(notes_directory)
+
+    def get_file_path(self, file_name):
+        return os.path.join(self.notes_directory, file_name)
+
+    def createDirectory(self):
+        if not os.path.exists(self.notes_directory):
+            os.makedirs(self.notes_directory)
+            print("Folder created.")
+
+    def add_photo_to_note(self, file_name, photo_file):
+        if not file_name.endswith('.txt'):
+            file_name += '.txt'
+        photo_filename = secure_filename(photo_file.filename)
+        photo_path = os.path.join(self.notes_directory, 'photos', photo_filename)
+        photo_file.save(photo_path)
+        with open(self.get_file_path(file_name), 'a') as file:
+            file.write(f"[img:{photo_path}]\n")
+
+    # Other methods remain unchanged...
+
+note_manager = NoteManager("notes_directory")
+
+@app.route('/notes/add', methods=['POST'])
+def add_note_route():
+    file_name = request.args.get('file_name')
+    note_text = request.args.get('note')
+    photo_file = request.files.get('photo')
+
+    if file_name:
+        if note_text:
+            note_manager.add_note(file_name, note_text)
+        if photo_file:
+            note_manager.add_photo_to_note(file_name, photo_file)
+        return jsonify({'message': 'Note added successfully'}), 201
+    else:
+        return jsonify({'error': 'Missing file_name parameter'}), 400
+
+@app.route('/upload/photo', methods=['POST'])
+def upload_photo():
+    if 'photo' not in request.files:
+        return jsonify({'error': 'No file part'}), 400
+    photo_file = request.files['photo']
+    if photo_file.filename == '':
+        return jsonify({'error': 'No selected file'}), 400
+    if photo_file and allowed_file(photo_file.filename):
+        filename = secure_filename(photo_file.filename)
+        photo_file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+        return jsonify({'message': 'File uploaded successfully'}), 201
+    else:
+        return jsonify({'error': 'Invalid file type'}), 400
+
