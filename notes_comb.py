@@ -9,6 +9,7 @@ from rich.layout import Panel
 console = Console()
 notes_manager = backend_comb.NoteManager("notes_directory")
 checklist_file_path = "checklist.txt"
+# flashcard_path = "flashcard.txt"
 
 API_URL = "http://127.0.0.1:5000"  # Localhost and the default Flask port
 
@@ -32,7 +33,7 @@ def print_help():
             "   [green]change[/green]  Switches current folder\n"
             "   [green]help[/green]    Print this help\n"
             "   [green]quit[/green]    Exit the program\n"
-
+            "   [green]transfer[/green]     Transfer file between folders\n"
             ,
             title="[bold][cyan]Program Commands[/cyan][/bold]",
             subtitle="", subtitle_align="right"
@@ -56,7 +57,7 @@ def print_help():
     )
 
     layout["upper"].size = 5
-    layout["lower"].size = 9
+    layout["lower"].size = 10
     main_panel = Panel(layout, title="[bold magenta]<Note Taking App>[/bold magenta]", subtitle="", height=17,
                        width=100)
     console.print(main_panel)
@@ -66,7 +67,7 @@ def display():
     current_directory = notes_manager.notes_directory
     note_list = str(notes_manager.get_list(current_directory))
     display = Panel(f"[bold magenta]|Current Directory:[/bold magenta] \\{current_directory}"
-            f"\n\n[yellow] Contents:  [/yellow]{note_list}",title="[bold magenta]<Content>[/bold magenta]", subtitle="", height=5,
+            f"\n\n[yellow] Contents:  [/yellow]{note_list}",title="[bold magenta]<Content>[/bold magenta]", subtitle="", height=6,
                        width=100)
     console.print(display)
 
@@ -214,7 +215,7 @@ def main():
         elif choice == 'quiz':
             file_name = input("Enter your file name: ")
             try:
-                test = backend_comb.flash_cards(file_name)
+                test = backend_comb.flash_cards(folder_name)
             except UnboundLocalError:
                 test = backend_comb.flash_cards("notes_directory")
             test.Instructions()
