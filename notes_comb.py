@@ -47,6 +47,7 @@ def print_help():
             "   [green]search[/green]  Search notes in a file\n"
             "   [green]new[/green]     Create a new file\n"
             "   [green]delete[/green]  Delete a file\n"
+            "   [green]checklist[/green]  Create a checklist\n"
             ,
             title="[bold][cyan]Notes Commands[/cyan][/bold]",
             subtitle="", subtitle_align="left"
@@ -77,6 +78,11 @@ def main():
         choice = input("Enter a command: ")
         
         if choice == 'quit':
+            print("Quitting", end=' ')
+            print('.', end=' ')
+            print('.', end=' ')
+            print('.', end='\n')
+            print("Goodbye!")
             break
             
         elif choice == 'help':
