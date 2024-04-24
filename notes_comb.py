@@ -48,6 +48,7 @@ def print_help():
             "   [green]new[/green]     Create a new file\n"
             "   [green]delete[/green]  Delete a file\n"
             "   [green]checklist[/green]  Create a checklist\n"
+            "   [green]quiz[/green]  Create a flashcard quiz\n"
             ,
             title="[bold][cyan]Notes Commands[/cyan][/bold]",
             subtitle="", subtitle_align="left"
@@ -123,7 +124,7 @@ def main():
             if response.status_code == 201:
                 print("Note added successfully.")
             else:
-                print(f"Failed to retrieve notes: {response.json().get('error', 'Unknown Error')}")
+                print(f"Failed to retrieve notes: {response.json().get('error', 'Unknown Error')}"), 404
             
 
          
@@ -209,8 +210,21 @@ def main():
                     break
                 else:
                     print("Invalid choice. Please try again.")
+
+        elif choice == 'quiz':
+            file_name = input("Enter your file name: ")
+            try:
+                test = backend_comb.flash_cards(file_name)
+            except UnboundLocalError:
+                test = backend_comb.flash_cards("notes_directory")
+            test.Instructions()
+            test.create_cards(test, file_name)
+            test.test(test)
+
         else:
             print("Invalid command. Enter 'help' to see available commands.")
+
+        
             
 if __name__ == '__main__':
     main()
