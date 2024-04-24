@@ -8,6 +8,7 @@ from rich.layout import Panel
 
 console = Console()
 notes_manager = backend_comb.NoteManager("notes_directory")
+checklist_file_path = "checklist.txt"
 
 API_URL = "http://127.0.0.1:5000"  # Localhost and the default Flask port
 
@@ -48,6 +49,8 @@ def print_help():
             "   [green]search[/green]  Search notes in a file\n"
             "   [green]new[/green]     Create a new file\n"
             "   [green]delete[/green]  Delete a file\n"
+            "   [green]checklist[/green]  Create a checklist\n"
+            "   [green]quiz[/green]  Create a flashcard quiz\n"
             ,
             title="[bold][cyan]Notes Commands[/cyan][/bold]",
             subtitle="", subtitle_align="left"
@@ -105,6 +108,11 @@ def main():
         choice = input("Enter a command: ")
         
         if choice == 'quit':
+            print("Quitting", end=' ')
+            print('.', end=' ')
+            print('.', end=' ')
+            print('.', end='\n')
+            print("Goodbye!")
             break
             
         elif choice == 'help':
@@ -146,7 +154,7 @@ def main():
             if response.status_code == 201:
                 print("Note added successfully.")
             else:
-                print(f"Failed to retrieve notes: {response.json().get('error', 'Unknown Error')}")
+                print(f"Failed to retrieve notes: {response.json().get('error', 'Unknown Error')}"), 404
             
 
          
@@ -207,9 +215,48 @@ def main():
             display_dir()
             folder_name = input("Enter name of folder to delete: ")
             notes_manager.delete_folder(folder_name)
+            
+        elif choice == 'checklist':
+            print("Entering checklist mode...")
+            while True:
+                checklist_choice = input("Checklist Menu:\n1. Add item\n2. Check item\n3. Uncheck item\n4. Display checklist\n5. Delete checklist\n6. Exit\nEnter your choice: ")
+                if checklist_choice == '1':
+                    item_text = input("Enter the checklist item: ")
+                    notes_manager.add_checklist_item(checklist_file_path, item_text)
+                    
+                elif checklist_choice == '2':
+                    item_index = int(input("Enter the index of the item to check off: "))
+                    notes_manager.check_item(checklist_file_path, item_index-1)
+
+                elif checklist_choice == '3':
+                    item_index1 = int(input("Enter the index of the item to uncheck: "))
+                    notes_manager.uncheck_item(checklist_file_path, item_index1-1)
+                elif checklist_choice == '4':
+                    notes_manager.display_checklist(checklist_file_path)
+
+                elif checklist_choice == '5':
+                    item_index = int(input("Enter the index of the item to delete: "))
+                    notes_manager.delete_checklist_choice(checklist_file_path, item_index-1)
+
+                elif checklist_choice == '6':
+                    break
+                else:
+                    print("Invalid choice. Please try again.")
+
+        elif choice == 'quiz':
+            file_name = input("Enter your file name: ")
+            try:
+                test = backend_comb.flash_cards(file_name)
+            except UnboundLocalError:
+                test = backend_comb.flash_cards("notes_directory")
+            test.Instructions()
+            test.create_cards(test, file_name)
+            test.test(test)
 
         else:
             print("Invalid command. Enter 'help' to see available commands.")
+
+        
             
 if __name__ == '__main__':
     main()
