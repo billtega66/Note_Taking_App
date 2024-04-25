@@ -17,19 +17,13 @@ To get started with the Note Taking App, follow these steps:
 The backend application has no external dependencies beyond the Python standard library.
 
 
-## Project Structure
-The project structure is:  
-Note-Taking-App/  
-├──notes.py  
-├──backend.py - Main Python code containing the application logic.  
-└── README.md - The README file.
+## Backend
+To run backend, type: 
+ python backend_comb.py
 
-## Features
-- **Create New File:**  Create a new text file for storing notes.
-- **Delete File:**  Delete an existing text file.
-- **Add Note to File:**  Append a note with timestamp to an existing text file.
-- **Print Notes from File:**  Display all notes stored in a specified text file.
-- **Search Notes in File:**  Search for specific notes within a text file.
+## Frontend
+To run frontend, type:
+python notes_comb.py
 
 
 ## Contributing
