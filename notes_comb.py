@@ -5,7 +5,7 @@ from rich.console import Console
 from rich.markdown import Markdown
 from rich.layout import Layout
 from rich.layout import Panel
-
+from json.decoder import JSONDecodeError
 
 console = Console()
 notes_manager = backend_comb.NoteManager("notes_directory")
@@ -110,7 +110,10 @@ def main():
             display()
             file_name = input("Enter name of file to delete: ")
             response = requests.delete(f'http://127.0.0.1:5000/notes/{file_name}')
-            print(response.json()['message'])
+            print("Delete file successful.")
+    
+            
+                
             
         elif choice == 'add':
             # Adding a note to a file
@@ -223,6 +226,7 @@ def main():
             test.Instructions()
             test.create_cards(test, file_name)
             test.test(test)
+
         elif choice == 'photo':
             # Uploading a photo to a note
             display()
