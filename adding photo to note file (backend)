@@ -1,16 +1,11 @@
-import backend_comb
-import os
 import requests
 from rich.console import Console
-from rich.markdown import Markdown
 from rich.layout import Layout
 from rich.layout import Panel
 
-
 console = Console()
-notes_manager = backend_comb.NoteManager("notes_directory")
+notes_manager = NoteManager("notes_directory")
 checklist_file_path = "checklist.txt"
-# flashcard_path = "flashcard.txt"
 
 API_URL = "http://127.0.0.1:5000"  # Localhost and the default Flask port
 
@@ -18,16 +13,14 @@ def print_help():
     # Setting up the layout for the help menu
     layout = Layout()
     layout.split_column(Layout(name="upper"), Layout(name="lower"))
-    layout["lower"].split_row(Layout(name="left"), Layout(name="right"))
     current_directory = notes_manager.notes_directory
     note_list = str(notes_manager.get_list(current_directory))
-    count = len(notes_manager.get_list(current_directory))
-    additional_length = count/7
 
     # Displaying the current directory and available commands
     layout["upper"].update(Panel(f"[bold magenta]|Current Directory:[/bold magenta] \\{current_directory}"
-                                 f"\n\n[yellow] Contents:  [yellow]{note_list} "
+                                 f"\n\n[yellow] Contents:  [yellow]{note_list}"
                                  ))
+    layout["lower"].split_row(Layout(name="left"), Layout(name="right"))
     layout["left"].update(
         Panel(
             "\n"
@@ -36,7 +29,7 @@ def print_help():
             "   [green]change[/green]  Switches current folder\n"
             "   [green]help[/green]    Print this help\n"
             "   [green]quit[/green]    Exit the program\n"
-            "   [green]transfer[/green]     Transfer file between folders\n"
+
             ,
             title="[bold][cyan]Program Commands[/cyan][/bold]",
             subtitle="", subtitle_align="right"
@@ -53,16 +46,16 @@ def print_help():
             "   [green]delete[/green]  Delete a file\n"
             "   [green]checklist[/green]  Create a checklist\n"
             "   [green]quiz[/green]  Create a flashcard quiz\n"
-            "   [green]photo[/green]   Upload a photo to a note\n"
+            "   [green]upload[/green]  Upload an image\n"
             ,
             title="[bold][cyan]Notes Commands[/cyan][/bold]",
             subtitle="", subtitle_align="left"
         )
     )
 
-    layout["upper"].size = 5 + int(additional_length)
-    layout["lower"].size = 11
-    main_panel = Panel(layout, title="[bold magenta]<Note Taking App>[/bold magenta]", subtitle="", height=17+int(additional_length),
+    layout["upper"].size = 5
+    layout["lower"].size = 9
+    main_panel = Panel(layout, title="[bold magenta]<Note Taking App>[/bold magenta]", subtitle="", height=17,
                        width=100)
     console.print(main_panel)
 
@@ -71,36 +64,9 @@ def display():
     current_directory = notes_manager.notes_directory
     note_list = str(notes_manager.get_list(current_directory))
     display = Panel(f"[bold magenta]|Current Directory:[/bold magenta] \\{current_directory}"
-            f"\n\n[yellow] Contents:  [/yellow]{note_list}",title="[bold magenta]<Content>[/bold magenta]", subtitle="", height=6,
+            f"\n\n[yellow] Contents:  [/yellow]{note_list}",title="[bold magenta]<Content>[/bold magenta]", subtitle="", height=5,
                        width=100)
     console.print(display)
-
-def display_dir():
-    current_directory = notes_manager.notes_directory
-    dir_list = notes_manager.get_dir()
-    dir_list.remove(current_directory)
-    if not dir_list:
-        dir_list = "There exists no other directory."
-    display = Panel(f"[bold magenta]|Current Directory:[/bold magenta] \\{current_directory}"
-                    f"\n\n[magenta] Other Directories:  {dir_list}[/magenta]", title="[bold magenta]<Directory>[/bold magenta]",
-                    subtitle="", height=5,
-                    width=100)
-    console.print(display)
-
-
-def display_notes(response,file_name):
-    current_directory = notes_manager.notes_directory
-    count = 5
-    lines = response.text.split('\n')
-    for i in lines: count += 1
-    display = Panel(f"[bold magenta]|Current Path:[/bold magenta] \\{current_directory}\\{file_name}.txt"
-                    f"\n\n{response.text}",
-                    title=f"[bold magenta]<Note>[/bold magenta]",
-                    subtitle="", height=count,
-                    width=100)
-    console.print(display)
-
-
 
 def main():
     print_help()
@@ -119,7 +85,6 @@ def main():
             break
             
         elif choice == 'help':
-            notes_manager.cls()
             print_help()
 
         elif choice == 'note':
@@ -172,8 +137,8 @@ def main():
             }
             response = requests.get(f"{API_URL}/notes/print", params=params)
             if response.status_code == 200:
-                notes_manager.cls()
-                display_notes(response,file_name)
+                print("Notes:")
+                print(response.text)
             else:
                 print(f"Failed to retrieve notes: {response.json().get('error', 'Unknown Error')}")
             
@@ -204,7 +169,6 @@ def main():
 
         elif choice == 'change':
             # Changing the current folder
-            display_dir()
             folder_name = input("Enter name for folder: ")
             notes_manager.change_folder(folder_name)
 
@@ -215,7 +179,6 @@ def main():
 
         elif choice == 'deletef':
             # Deleting a folder
-            display_dir()
             folder_name = input("Enter name of folder to delete: ")
             notes_manager.delete_folder(folder_name)
             
@@ -249,30 +212,159 @@ def main():
         elif choice == 'quiz':
             file_name = input("Enter your file name: ")
             try:
-                test = backend_comb.flash_cards(folder_name)
+                test = backend_comb.flash_cards(file_name)
             except UnboundLocalError:
                 test = backend_comb.flash_cards("notes_directory")
             test.Instructions()
             test.create_cards(test, file_name)
             test.test(test)
-        elif choice == 'photo':
-            # Uploading a photo to a note
-            display()
-            file_name = input("Enter the filename to add the photo to: ")
-            photo_path = input("Enter the path of the photo file: ")
-            with open(photo_path, 'rb') as photo_file:
-                files = {'photo': photo_file}
-                params = {'file_name': file_name}
-                response = requests.post(f"{API_URL}/notes/add", params=params, files=files)
-                if response.status_code == 201:
-                    print("Photo added to the note successfully.")
-                else:
-                    print(f"Failed to add photo: {response.json().get('error', 'Unknown Error')}")
 
+        elif choice == 'upload':
+            file_name = input("Enter name of file to add photo to: ")
+            photo_path = input("Enter the path to the photo: ")
+            photo_file = open(photo_path, 'rb')
+            files = {'photo': photo_file}
+            response = requests.post(f"{API_URL}/notes/add?file_name={file_name}", files=files)
+            if response.status_code == 201:
+                print("Photo added successfully.")
+            else:
+                print(f"Failed to add photo: {response.json().get('error', 'Unknown Error')}")
         else:
             print("Invalid command. Enter 'help' to see available commands.")
 
-        
-            
 if __name__ == '__main__':
     main()
+
+
+
+
+
+
+#front end implementation 
+import os
+import datetime
+import shutil
+from flask import Flask, request, jsonify
+from werkzeug.utils import secure_filename
+
+app = Flask(__name__)
+
+class NoteManager:
+    def __init__(self, notes_directory):
+        self.notes_directory = notes_directory
+        if not os.path.exists(notes_directory):
+            os.makedirs(notes_directory)
+
+    def get_file_path(self, file_name):
+        return os.path.join(self.notes_directory, file_name)
+
+    def createDirectory(self):
+        if not os.path.exists(self.notes_directory):
+            os.makedirs(self.notes_directory)
+            print("Folder created.")
+
+    def add_photo_to_note(self, file_name, photo_file):
+        if not file_name.endswith('.txt'):
+            file_name += '.txt'
+        photo_filename = secure_filename(photo_file.filename)
+        photo_path = os.path.join(self.notes_directory, 'photos', photo_filename)
+        photo_file.save(photo_path)
+        with open(self.get_file_path(file_name), 'a') as file:
+            file.write(f"[img:{photo_path}]\n")
+
+    # Other methods remain unchanged...
+
+note_manager = NoteManager("notes_directory")
+
+@app.route('/notes/add', methods=['POST'])
+def add_note_route():
+    file_name = request.args.get('file_name')
+    note_text = request.args.get('note')
+    photo_file = request.files.get('photo')
+
+    if file_name:
+        if note_text:
+            note_manager.add_note(file_name, note_text)
+        if photo_file:
+            note_manager.add_photo_to_note(file_name, photo_file)
+        return jsonify({'message': 'Note added successfully'}), 201
+    else:
+        return jsonify({'error': 'Missing file_name parameter'}), 400
+
+@app.route('/upload/photo', methods=['POST'])
+def upload_photo():
+    if 'photo' not in request.files:
+        return jsonify({'error': 'No file part'}), 400
+    photo_file = request.files['photo']
+    if photo_file.filename == '':
+        return jsonify({'error': 'No selected file'}), 400
+    if photo_file and allowed_file(photo_file.filename):
+        filename = secure_filename(photo_file.filename)
+        photo_file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+        return jsonify({'message': 'File uploaded successfully'}), 201
+    else:
+        return jsonify({'error': 'Invalid file type'}), 400
+import os
+import datetime
+import shutil
+from flask import Flask, request, jsonify
+from werkzeug.utils import secure_filename
+
+app = Flask(__name__)
+
+class NoteManager:
+    def __init__(self, notes_directory):
+        self.notes_directory = notes_directory
+        if not os.path.exists(notes_directory):
+            os.makedirs(notes_directory)
+
+    def get_file_path(self, file_name):
+        return os.path.join(self.notes_directory, file_name)
+
+    def createDirectory(self):
+        if not os.path.exists(self.notes_directory):
+            os.makedirs(self.notes_directory)
+            print("Folder created.")
+
+    def add_photo_to_note(self, file_name, photo_file):
+        if not file_name.endswith('.txt'):
+            file_name += '.txt'
+        photo_filename = secure_filename(photo_file.filename)
+        photo_path = os.path.join(self.notes_directory, 'photos', photo_filename)
+        photo_file.save(photo_path)
+        with open(self.get_file_path(file_name), 'a') as file:
+            file.write(f"[img:{photo_path}]\n")
+
+    # Other methods remain unchanged...
+
+note_manager = NoteManager("notes_directory")
+
+@app.route('/notes/add', methods=['POST'])
+def add_note_route():
+    file_name = request.args.get('file_name')
+    note_text = request.args.get('note')
+    photo_file = request.files.get('photo')
+
+    if file_name:
+        if note_text:
+            note_manager.add_note(file_name, note_text)
+        if photo_file:
+            note_manager.add_photo_to_note(file_name, photo_file)
+        return jsonify({'message': 'Note added successfully'}), 201
+    else:
+        return jsonify({'error': 'Missing file_name parameter'}), 400
+
+@app.route('/upload/photo', methods=['POST'])
+def upload_photo():
+    if 'photo' not in request.files:
+        return jsonify({'error': 'No file part'}), 400
+    photo_file = request.files['photo']
+    if photo_file.filename == '':
+        return jsonify({'error': 'No selected file'}), 400
+    if photo_file and allowed_file(photo_file.filename):
+        filename = secure_filename(photo_file.filename)
+        photo_file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+        return jsonify({'message': 'File uploaded successfully'}), 201
+    else:
+        return jsonify({'error': 'Invalid file type'}), 400
+
