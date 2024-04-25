@@ -1,5 +1,6 @@
 import os
 import datetime
+import shutil
 from rich.console import Console
 from rich.markdown import Markdown
 from flask import Flask, request, jsonify
@@ -57,6 +58,19 @@ class NoteManager:
             self.notes_directory = foldername
         else:
             print("Folder does not exist.")
+
+    def transfer_folder(self, file_name, folder_name):
+        if not file_name.endswith('.txt'):
+            file_name += '.txt'
+        file = self.get_file_path(file_name)
+        try:
+            folder_name = self.working_dir() + "\\" + folder_name
+            shutil.move(file, folder_name)
+        except:
+            print("Either folder, or file does not exist")
+
+    def working_dir(self):
+        return os.getcwd()
 ####################################################
             
     def create_new_file(self, file_name, password=None):
