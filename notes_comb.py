@@ -1,4 +1,5 @@
 import backend_comb
+import os
 import requests
 from rich.console import Console
 from rich.markdown import Markdown
@@ -50,6 +51,7 @@ def print_help():
             "   [green]delete[/green]  Delete a file\n"
             "   [green]checklist[/green]  Create a checklist\n"
             "   [green]quiz[/green]  Create a flashcard quiz\n"
+            "   [green]photo[/green]   Upload a photo to a note\n"
             ,
             title="[bold][cyan]Notes Commands[/cyan][/bold]",
             subtitle="", subtitle_align="left"
@@ -57,8 +59,8 @@ def print_help():
     )
 
     layout["upper"].size = 5
-    layout["lower"].size = 10
-    main_panel = Panel(layout, title="[bold magenta]<Note Taking App>[/bold magenta]", subtitle="", height=17,
+    layout["lower"].size = 11
+    main_panel = Panel(layout, title="[bold magenta]<Note Taking App>[/bold magenta]", subtitle="", height=18,
                        width=100)
     console.print(main_panel)
 
@@ -221,7 +223,20 @@ def main():
             test.Instructions()
             test.create_cards(test, file_name)
             test.test(test)
-
+        elif choice == 'photo':
+            # Uploading a photo to a note
+            display()
+            file_name = input("Enter the filename to add the photo to: ")
+            photo_path = input("Enter the path of the photo file: ")
+            with open(photo_path, 'rb') as photo_file:
+                files = {'photo': photo_file}
+                params = {'file_name': file_name}
+                response = requests.post(f"{API_URL}/notes/add", params=params, files=files)
+                if response.status_code == 201:
+                    print("Photo added to the note successfully.")
+                else:
+                    print(f"Failed to add photo: {response.json().get('error', 'Unknown Error')}")
+        
         else:
             print("Invalid command. Enter 'help' to see available commands.")
 

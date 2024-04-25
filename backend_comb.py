@@ -1,9 +1,8 @@
 import os
 import datetime
 import shutil
-from rich.console import Console
-from rich.markdown import Markdown
 from flask import Flask, request, jsonify
+from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
 
@@ -210,6 +209,17 @@ class NoteManager:
             print("Item deleted successfully!")
         else:
             print("Invalid item index.") 
+
+    def add_photo_to_note(self, file_name, photo_file):
+        if not file_name.endswith('.txt'):
+            file_name += '.txt'
+        photo_filename = secure_filename(photo_file.filename)
+        photo_path = os.path.join(self.notes_directory, 'photos', photo_filename)
+        photo_file.save(photo_path)
+        with open(self.get_file_path(file_name), 'a') as file:
+            file.write(f"[img:{photo_path}]\n")
+
+    
     
 class Node: 
     def __init__(self, question,answer):
@@ -274,7 +284,7 @@ class flash_cards(linked_list, NoteManager):
         print ("2. If there is not an even number of lines in the text file, the test will not be able to run")
         print("3. The answers will be space sensitive, so make sure there are not extra spaces anywhere (especially at the end) ")
         print("4. The flash cards will cycle through until you get all of the answers correct")
-        print("5. ")
+        print("5. Exit")
     @staticmethod
     def create_cards(card_pile, file_name):
         if not file_name.endswith('.txt'):
@@ -326,20 +336,22 @@ class flash_cards(linked_list, NoteManager):
             current = card_pile.head
             
         print("All questions have been answered correctly")
+    
+
         
 #############################
 note_manager = NoteManager("notes_directory")
 
-@app.route('/notes/add', methods=['POST'])
-def add_note_route():
-    file_name = request.args.get('file_name')
-    note = request.args.get('note')
-    password = request.args.get('password')
-    if file_name and note:
-        note_manager.add_note(file_name, note, password)
-        return jsonify({'message': 'Note added successfully'}), 201
-    else:
-        return jsonify({'error': 'Missing file_name or note parameter'}), 400
+# @app.route('/notes/add', methods=['POST'])
+# def add_note_route():
+#     file_name = request.args.get('file_name')
+#     note = request.args.get('note')
+#     password = request.args.get('password')
+#     if file_name and note:
+#         note_manager.add_note(file_name, note, password)
+#         return jsonify({'message': 'Note added successfully'}), 201
+#     else:
+#         return jsonify({'error': 'Missing file_name or note parameter'}), 400
 
 @app.route('/notes/search', methods=['GET'])
 def api_search_notes():
@@ -409,4 +421,39 @@ def delete_checklist_item(file_name, item_index):
     note_manager.delete_checklist_choice(file_path, item_index)
     return jsonify({'message': 'Checklist item deleted successfully'})
 
+@app.route('/notes/add', methods=['POST'])
+def add_note_route():
+    file_name = request.args.get('file_name')
+    note_text = request.args.get('note')
+    photo_file = request.files.get('photo')
 
+    if file_name:
+        if note_text:
+            note_manager.add_note(file_name, note_text)
+        if photo_file:
+            note_manager.add_photo_to_note(file_name, photo_file)
+        return jsonify({'message': 'Note added successfully'}), 201
+    else:
+        return jsonify({'error': 'Missing file_name parameter'}), 400
+
+
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+
+@app.route('/upload/photo', methods=['POST'])
+def upload_photo():
+    if 'photo' not in request.files:
+        return jsonify({'error': 'No file part'}), 400
+    photo_file = request.files['photo']
+    if photo_file.filename == '':
+        return jsonify({'error': 'No selected file'}), 400
+    if photo_file and allowed_file(photo_file.filename):
+        filename = secure_filename(photo_file.filename)
+        photo_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        photo_file.save(photo_path)
+        return jsonify({'message': 'File uploaded successfully'}), 201
+    else:
+        return jsonify({'error': 'Invalid file type'}), 400
