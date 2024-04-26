@@ -79,8 +79,9 @@ def main():
     while True:
         # Loop to continuously prompt for user input
         notes_manager.createDirectory()
-        choice = input("Enter a command: ")
-        
+        args = input("Enter a command: ").split()
+        choice = args[0]
+
         if choice == 'quit':
             print("Quitting", end=' ')
             print('.', end=' ')
@@ -94,33 +95,51 @@ def main():
 
         elif choice == 'note':
             # Creating a new note
-            file_name = input("Enter name for new file: ")
-            password_protected = input("Would you like to make this note password-protected? (yes/no): ").lower()
-            if password_protected == 'yes':
-                password = input("Enter password for the note: ")
-                notes_manager.create_new_file(file_name, password)
+            if len(args) >= 2:
+                file_name = args[1]
+                password_protected = input("Would you like to make this note password-protected? (yes/no): ").lower()
+                if password_protected == 'yes':
+                    password = input("Enter password for the note: ")
+                    notes_manager.create_new_file(file_name, password)
+                else:
+                    notes_manager.create_new_file(file_name)
             else:
-                notes_manager.create_new_file(file_name)
+                file_name = input("Enter name for new file: ")
+                password_protected = input("Would you like to make this note password-protected? (yes/no): ").lower()
+                if password_protected == 'yes':
+                    password = input("Enter password for the note: ")
+                    notes_manager.create_new_file(file_name, password)
+                else:
+                    notes_manager.create_new_file(file_name)
             note = input("Enter your note: ")
             notes_manager.add_note(file_name, note)
             notes_manager.get_notes(file_name)
            
         elif choice == 'delete':
             # Deleting a file
-            display()
-            file_name = input("Enter name of file to delete: ")
+            if len(args) >= 2:
+                file_name = args[1]
+            else:
+                display()
+                file_name = input("Enter name of file to delete: ")
             response = requests.delete(f'http://127.0.0.1:5000/notes/{file_name}')
             print("Delete file successful.")
-    
             
                 
             
         elif choice == 'add':
             # Adding a note to a file
-            display()
-            file_name = input("Enter name of file to add note to: ")
-            note = input("Enter your note: ")
-            password = input("Enter password for the note (if applicable): ")
+            if len(args) >= 2:
+                file_name = input("Enter name of file to add note to: ")
+                note = input("Enter your note: ")
+                password = input("Enter password for the note (if applicable): ")
+            
+            else:
+                display()
+                file_name = input("Enter name of file to add note to: ")
+                note = input("Enter your note: ")
+                password = input("Enter password for the note (if applicable): ")
+
             params = {
                 'file_name': file_name,
                 'note': note,
@@ -136,58 +155,100 @@ def main():
          
         elif choice == 'print':
             # Printing notes from a file
-            display()
-            file_name = input("Enter the filename: ")
-            password = input("Enter password (if any): ")
+            if len(args) >= 2:
+                file_name = args[1]
+                password = input("Enter password (if any): ")
+            
+            else:
+
+                display()
+                file_name = input("Enter the filename: ")
+                password = input("Enter password (if any): ")
+
             params = {
                 'file_name': file_name,
                 'password': password
             }
+
             response = requests.get(f"{API_URL}/notes/print", params=params)
+
             if response.status_code == 200:
                 print("Notes:")
                 print(response.text)
+
             else:
                 print(f"Failed to retrieve notes: {response.json().get('error', 'Unknown Error')}")
             
         elif choice == 'search':
             # Searching for notes in a file
-            display()
-            file_name = input("Enter the filename: ")
-            query = input("Enter the search query: ")
-            password = input("Enter password (if any): ")
+            if len(args) == 3:
+                file_name = args[1]
+                query = args[2]
+                password = input("Enter password (if any): ")
+
+            if len(args) == 2:
+                file_name = args[1]
+                query = input("Enter the search query: ")
+                password = input("Enter password (if any): ")
+
+            else:
+                display()
+                file_name = input("Enter the filename: ")
+                query = input("Enter the search query: ")
+                password = input("Enter password (if any): ")
+
             params = {
                 'file_name': file_name,
                 'query': query,
                 'password': password
             }
+
             response = requests.get(f"{API_URL}/notes/search", params=params)
             if response.status_code == 200:
                 print("Search Results:")
                 notes = response.json()
                 for note in notes:
                     print(note)
+
             else:
                 print(f"Failed to retrieve notes: {response.json().get('error', 'Unknown Error')}")
 
         elif choice == 'newf':
             # Creating a new folder
-            folder_name = input("Enter name for new folder: ")
+            if len(args) >= 2:
+                folder_name = args[1]
+
+            else:
+                folder_name = input("Enter name for new folder: ")
+
             notes_manager.create_folder(folder_name)
 
         elif choice == 'change':
             # Changing the current folder
-            folder_name = input("Enter name for folder: ")
+            if len(args) >= 2:
+                folder_name = args[1]
+
+            else:
+                folder_name = input("Enter name for folder: ")
+
             notes_manager.change_folder(folder_name)
 
         elif choice == 'new':
             # Creating a new file
-            file_name = input("Enter name for new file: ")
+            if len(args) >= 2:
+                file_name = args[1]
+            
+            else:
+                file_name = input("Enter name for new file: ")
             notes_manager.create_new_file(file_name)
 
         elif choice == 'deletef':
             # Deleting a folder
-            folder_name = input("Enter name of folder to delete: ")
+            if len(args) >= 2:
+                folder_name = args[1]
+
+            else:
+                folder_name = input("Enter name of folder to delete: ")
             notes_manager.delete_folder(folder_name)
             
         elif choice == 'checklist':
@@ -229,8 +290,13 @@ def main():
 
         elif choice == 'photo':
             # Uploading a photo to a note
-            display()
-            file_name = input("Enter the filename to add the photo to: ")
+            if len(args) == 2:
+                file_name = args[1]
+
+            else:
+                display()
+                file_name = input("Enter the filename to add the photo to: ")
+            
             photo_path = input("Enter the path of the photo file: ")
             with open(photo_path, 'rb') as photo_file:
                 files = {'photo': photo_file}
