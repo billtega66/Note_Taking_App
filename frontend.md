@@ -52,7 +52,7 @@ You can save time by putting the filename along with the command. This feature a
 
 ## Contributing
 
-Team member: Quoc Do, Bilguntush, Balti, Phoebe, Jojo, Kunga, Mitch, Raymond, Tucker.
+Team member: Quoc Do, Bilguntugs, Balti, Phoebe, Jojo, Kunga, Mitch, Raymond, Tucker.
 
 ## License
 
