@@ -47,6 +47,8 @@ After running the application, you'll be prompted to enter commands to perform v
 - `deletef`: Delete a specific folder.
 
 Follow the prompts to enter the required information for each command.
+OR
+You can save time by putting the filename along with the command. This feature allows you to include the filename, seperated by a space, with the command so you can skip the step of inputting the filename separately
 
 ## Contributing
 
