@@ -1,4 +1,4 @@
-import backend_comb
+import backend_comb as backend_comb
 import os
 import requests
 from rich.console import Console

@@ -8,7 +8,7 @@ The Note Taking App is a Python application designed to manage notes stored in t
 ## Getting Started
 To get started with the Note Taking App, follow these steps:
 
-1. **Clone the repository:**  https://github.com/jojordan24/project-1.1.git 
+1. **Clone the repository:**  https://github.com/Bilguntugs/Project3.0.git
 2. **Navigate to the backend directory**
 3. **Run the application**
 
@@ -19,10 +19,12 @@ The backend application has no external dependencies beyond the Python standard 
 
 ## Backend
 To run backend, type: 
+
  python backend_comb.py
 
 ## Frontend
 To run frontend, type:
+
 python notes_comb.py
 
 
@@ -36,59 +38,6 @@ Contributions are welcome! If you'd like to contribute to Note Taking App, feel 
 To start using the `NoteManager`, initialize it with the path to the directory where notes will be managed:
 `notes_manager = backends_comb.NoteManager("notes_directory")`
 
-## Command Reference
-
-Below is a list of commands supported by the system for managing notes and folders.
-
-### `note`
-
-- **Function**: Create a quick note.
-- **Details**: Allows the creation of a new note file. If desired, the note can be password-protected.
-
-### `delete`
-
-- **Function**: Delete a file.
-- **Details**: Deletes the specified note file from the current folder.
-
-### `add`
-
-- **Function**: Add a note to a file.
-- **Details**: Adds a new note to an existing file, with optional password protection.
-
-### `print`
-
-- **Function**: Print notes from a file.
-- **Details**: Outputs the contents of the specified note file, supporting password-protected files.
-
-### `search`
-
-- **Function**: Print all notes from a file.
-- **Details**: Searches within a file for notes containing the specified terms, supporting password-protected files.
-
-### `newf`
-
-- **Function**: Create a new folder.
-- **Details**: Creates a new folder for organizing notes within the specified directory.
-
-### `change`
-
-- **Function**: Switch current folder.
-- **Details**: Changes the current working directory to another folder within the specified notes directory.
-
-### `deletef`
-
-- **Function**: Delete a folder.
-- **Details**: Deletes the specified folder along with all its contents.
-
-### `help`
-
-- **Function**: Print this help.
-- **Details**: Displays a list of available commands and their descriptions.
-
-### `quit`
-
-- **Function**: Exit the program.
-- **Details**: Terminates the program.
 
 ## Usage
 
