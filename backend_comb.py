@@ -6,7 +6,6 @@ from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
 
-
 class NoteManager:
     def __init__(self, notes_directory):
         self.notes_directory = notes_directory
@@ -58,19 +57,6 @@ class NoteManager:
             self.notes_directory = foldername
         else:
             print("Folder does not exist.")
-
-    def transfer_folder(self, file_name, folder_name):
-        if not file_name.endswith('.txt'):
-            file_name += '.txt'
-        file = self.get_file_path(file_name)
-        try:
-            folder_name = self.working_dir() + "\\" + folder_name
-            shutil.move(file, folder_name)
-        except:
-            print("Either folder, or file does not exist")
-
-    def working_dir(self):
-        return os.getcwd()
 ####################################################
             
     def create_new_file(self, file_name, password=None):
@@ -114,7 +100,6 @@ class NoteManager:
                 if not self.check_password(file_path, password):
                     return jsonify({"error": "Incorrect password. Access denied."}), 401
             with open(file_path, 'r') as file:
-                self.cls()
                 return file.read(), 200
         except FileNotFoundError:
             return jsonify({"error": "File does not exist."}), 404
@@ -162,10 +147,6 @@ class NoteManager:
 
         return output
 
-    @staticmethod
-    def cls():
-        clear = lambda: os.system('cls')
-        clear()
 
 
 
@@ -174,7 +155,7 @@ class NoteManager:
     def add_checklist_item(self, file_path, item_text):
         """Add an item to the checklist in the file."""
         with open(file_path, 'a') as file:
-            file.write(f"[ ] {item_text}\n")
+            file.write(f"   [ ] {item_text}\n")
         print("Item added to the checklist successfully!")
 
     def check_item(self, file_path, item_index):
@@ -184,7 +165,7 @@ class NoteManager:
             lines = file.readlines()
 
         if 0 <= item_index < len(lines):
-            lines[item_index] = lines[item_index].replace("[ ]", "[x]", 1)
+            lines[item_index] = lines[item_index].replace("[ ]", "[X]", 1)
 
             with open(file_path, 'w') as file:
                 file.writelines(lines)
@@ -199,7 +180,7 @@ class NoteManager:
             lines = file.readlines()
 
         if 0 <= item_index1 < len(lines):
-            lines[item_index1] = lines[item_index1].replace("[x]", "[ ]", 1)
+            lines[item_index1] = lines[item_index1].replace("[X]", "[ ]", 1)
 
             with open(file_path, 'w') as file:
                 file.writelines(lines)
@@ -208,11 +189,9 @@ class NoteManager:
             print("Invalid item index.")
 
     def display_checklist(self, file_path):
-        """Display the checklist."""
         with open(file_path, 'r') as file:
-            print("Checklist:")
-            for index, line in enumerate(file):
-                print(f"{index}: {line.strip()}")
+            checklist_content = file.read()
+        return checklist_content
 
     def delete_checklist_choice(self, file_path, item_index):
         """Delete checklist choice"""
@@ -228,17 +207,6 @@ class NoteManager:
             print("Item deleted successfully!")
         else:
             print("Invalid item index.")
-
-    def add_photo_to_note(self, file_name, photo_file):
-        if not file_name.endswith('.txt'):
-            file_name += '.txt'
-        photo_filename = secure_filename(photo_file.filename)
-        photo_path = os.path.join(self.notes_directory, 'photos', photo_filename)
-        photo_file.save(photo_path)
-        with open(self.get_file_path(file_name), 'a') as file:
-            file.write(f"[img:{photo_path}]\n")
-
-
 
 class Node:
     def __init__(self, question,answer):
@@ -298,12 +266,13 @@ class flash_cards(linked_list, NoteManager):
         self.head = None
 
     def Instructions(self):
+
         print("You are attempting to run this file as flash cards. Here are some things to keep in mind to assure it runs correctly: ")
         print("1. Type the question in one line, then the answer in the next ")
         print ("2. If there is not an even number of lines in the text file, the test will not be able to run")
         print("3. The answers will be space sensitive, so make sure there are not extra spaces anywhere (especially at the end) ")
         print("4. The flash cards will cycle through until you get all of the answers correct")
-        print("5. Exit")
+
     @staticmethod
     def create_cards(card_pile, file_name):
         if not file_name.endswith('.txt'):
@@ -356,12 +325,19 @@ class flash_cards(linked_list, NoteManager):
 
         print("All questions have been answered correctly")
 
-
-
 #############################
 note_manager = NoteManager("notes_directory")
-card_pile = flash_cards("notes_directory")
 
+@app.route('/notes/add', methods=['POST'])
+def add_note_route():
+    file_name = request.args.get('file_name')
+    note = request.args.get('note')
+    password = request.args.get('password')
+    if file_name and note:
+        note_manager.add_note(file_name, note, password)
+        return jsonify({'message': 'Note added successfully'}), 201
+    else:
+        return jsonify({'error': 'Missing file_name or note parameter'}), 400
 
 @app.route('/notes/search', methods=['GET'])
 def api_search_notes():
@@ -431,53 +407,119 @@ def delete_checklist_item(file_name, item_index):
     note_manager.delete_checklist_choice(file_path, item_index)
     return jsonify({'message': 'Checklist item deleted successfully'})
 
-@app.route('/notes/add', methods=['POST'])
-def add_note_route():
-    file_name = request.args.get('file_name')
-    note_text = request.args.get('note')
-    photo_file = request.files.get('photo')
+# class Node: 
+#     def __init__(self, question,answer):
+#         self.question = question
+#         self.answer = answer
+#         self.next = None
+   
 
-    if file_name:
-        if note_text:
-            note_manager.add_note(file_name, note_text)
-        if photo_file:
-            note_manager.add_photo_to_note(file_name, photo_file)
-        return jsonify({'message': 'Note added successfully'}), 201
-    else:
-        return jsonify({'error': 'Missing file_name parameter'}), 400
+# class linked_list(Node): 
+#     def __init__ (self): 
+#         self.head = None
+
+#     def insertAtEnd(self,question,answer):
+#         new_node = Node(question,answer)
+#         if self.head is None:
+#             self.head = new_node
+#             return
+        
+#         current_node = self.head
+#         while (current_node.next != None):
+#             current_node = current_node.next
+            
+            
+#         current_node.next = new_node
+
+        
+    
+#     def remove_first_node(self):
+#         if(self.head == None):
+#             return
+ 
+#         self.head = self.head.next
+        
+#     def remove_at_index(self, index):
+#         if self.head == None:
+#             return
+#         current_node = self.head
+#         position = 0
+#         if position == index:
+#             self.remove_first_node()
+#         else:
+#             while(current_node != None and position+1 != index):
+#                 position = position+1
+#                 current_node = current_node.next
+ 
+#             if current_node != None:
+#                 current_node.next = current_node.next.next
+#             else:
+#                 print("Index not present")
+        
+
+            
+# class flash_cards(linked_list):
+    
+#     def Instructions():
+#         print("You are attempting to run this file as flash cards. Here are some things to keep in mind to assure it runs correctly: ")
+#         print("1. Type the question in one line, then the answer in the next ")
+#         print ("2. If there is not an even number of lines in the text file, the test will not be able to run")
+#         print("3. The answers will be space sensitive, so make sure there are no extra spaces anywhere (especially at the end) ")
+#         print("4. The flash cards will cycle through until you get all of the answers correct")
+
+               
+#     def create_cards(card_pile, file_name):
+#         with open('%s.txt' %file_name, 'r') as file:
+#             lines = file.readlines()
+#             length = len(lines)
+#             if (length%2 != 0):
+#                 return 
+#             count = 0
+#             while (count <= length - 1):
+#                 Q = lines[count]
+#                 count = count + 1
+#                 A = lines[count]
+#                 count = count + 1
+#                 card_pile.insertAtEnd(Q,A)
+    
+#     def test(card_pile):
+#         if card_pile.head is None:
+#             print("PILE IS EMPTY")
+#             return 
+        
+#         print("Now beginning the test...")
+#         print()
+        
+#         current = card_pile.head
+#         while ((current != None) ):
+#             index = 0
+#             while ((current != None) ):
+#                 user_input = input(current.question) 
+#                 answer = current.answer
+                
+#                 if (answer.lower() == (user_input.lower() + '\n') or answer.lower() == user_input.lower()):
+#                     print("Correct! Removing from pile")
+#                     print()
+#                     current = current.next 
+#                     card_pile.remove_at_index(index)
+#                 else: 
+#                     print("Incorrect. The correct answer is: %s" %current.answer)
+#                     print()
+#                     current = current.next 
+#                     index = index + 1 
+#             current = card_pile.head
+            
+#         print("All questions have been answered correctly")
+
+def cls():
+    clear = lambda: os.system('cls')
+    clear()
 
 
-# @app.route('/create_cards', methods=['POST'])
-# def create_cards():
-#     json_data = request.get_json()
-#     file_name = json_data['file_name']
-#     card_pile.create_cards(file_name)
-#     return jsonify({"message": "Cards created successfully"})
 
-# @app.route('/test_cards', methods=['POST'])
-# def test_cards():
-#     json_data = request.get_json()
-#     file_name = json_data['file_name']
-#     card_pile.test(file_name)
-#     return jsonify({"message": "Test completed"})
-
-ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
-
-def allowed_file(filename):
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
-
-
-@app.route('/upload/photo', methods=['POST'])
-def upload_photo():
-    if 'photo' not in request.files:
-        return jsonify({'error': 'No file part'}), 400
-    photo_file = request.files['photo']
-    if photo_file.filename == '':
-        return jsonify({'error': 'No selected file'}), 400
-    if photo_file and allowed_file(photo_file.filename):
-        filename = secure_filename(photo_file.filename)
-        photo_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-        photo_file.save(photo_path)
-        return jsonify({'message': 'File uploaded successfully'}), 201
-    else:
-        return jsonify({'error': 'Invalid file type'}), 400
+# # Run in this order:
+# # test = flash_cards()
+# # test.instructions()
+# # test.create_cards('hello')
+# # test.test()
+   

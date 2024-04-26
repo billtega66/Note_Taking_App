@@ -1,4 +1,5 @@
 import backend_comb
+import os
 import requests
 from rich.console import Console
 from rich.markdown import Markdown
@@ -8,6 +9,8 @@ from rich.layout import Panel
 
 console = Console()
 notes_manager = backend_comb.NoteManager("notes_directory")
+checklist_file_path = "checklist.txt"
+# flashcard_path = "flashcard.txt"
 
 API_URL = "http://127.0.0.1:5000"  # Localhost and the default Flask port
 
@@ -18,22 +21,28 @@ def print_help():
     layout["lower"].split_row(Layout(name="left"), Layout(name="right"))
     current_directory = notes_manager.notes_directory
     note_list = str(notes_manager.get_list(current_directory))
-    count = len(notes_manager.get_list(current_directory))
-    additional_length = count/7
 
-    # Displaying the current directory and available commands
+    additional_length = 0
+    try:
+        count = len(notes_manager.get_list(current_directory))
+        additional_length = count / 7
+
+    except:
+        additional_length = 0
+
+        # Displaying the current directory and available commands
     layout["upper"].update(Panel(f"[bold magenta]|Current Directory:[/bold magenta] \\{current_directory}"
                                  f"\n\n[yellow] Contents:  [yellow]{note_list} "
                                  ))
     layout["left"].update(
         Panel(
             "\n"
-            "   [green]newf[/green]    Create a new folder\n"
-            "   [green]deletef[/green] Delete a folder\n"
-            "   [green]change[/green]  Switches current folder\n"
-            "   [green]help[/green]    Print this help\n"
-            "   [green]quit[/green]    Exit the program\n"
-
+            "   [green]newf[/green]         Create a new folder\n"
+            "   [green]deletef[/green]      Delete a folder\n"
+            "   [green]change[/green]       Switches current folder\n"
+            "   [green]help[/green]         Print this help\n"
+            "   [green]quit[/green]         Exit the program\n"
+            "   [green]transfer[/green]     Transfer file between folders\n"
             ,
             title="[bold][cyan]Program Commands[/cyan][/bold]",
             subtitle="", subtitle_align="right"
@@ -43,11 +52,14 @@ def print_help():
     layout["right"].update(
         Panel(
             "\n"
-            "   [green]add[/green]     Add a note to a file\n"
-            "   [green]print[/green]   Print notes from a file\n"
-            "   [green]search[/green]  Search notes in a file\n"
-            "   [green]new[/green]     Create a new file\n"
-            "   [green]delete[/green]  Delete a file\n"
+            "   [green]add[/green]        Add a note to a file\n"
+            "   [green]print[/green]      Print notes from a file\n"
+            "   [green]search[/green]     Search notes in a file\n"
+            "   [green]new[/green]        Create a new file\n"
+            "   [green]delete[/green]     Delete a file\n"
+            "   [green]checklist[/green]  Create a checklist\n"
+            "   [green]quiz[/green]       Create a flashcard quiz\n"
+            "   [green]photo[/green]      Upload a photo to a note\n"
             ,
             title="[bold][cyan]Notes Commands[/cyan][/bold]",
             subtitle="", subtitle_align="left"
@@ -55,9 +67,9 @@ def print_help():
     )
 
     layout["upper"].size = 5 + int(additional_length)
-    layout["lower"].size = 9
-    main_panel = Panel(layout, title="[bold magenta]<Note Taking App>[/bold magenta]", subtitle="", height=17+int(additional_length),
-                       width=100)
+    layout["lower"].size = 12
+    main_panel = Panel(layout, title="[bold magenta]<Note Taking App>[/bold magenta]", subtitle="", height=19+int(additional_length),
+                       width=110)
     console.print(main_panel)
 
 def display():
@@ -65,7 +77,7 @@ def display():
     current_directory = notes_manager.notes_directory
     note_list = str(notes_manager.get_list(current_directory))
     display = Panel(f"[bold magenta]|Current Directory:[/bold magenta] \\{current_directory}"
-            f"\n\n[yellow] Contents:  [/yellow]{note_list}",title="[bold magenta]<Content>[/bold magenta]", subtitle="", height=5,
+            f"\n\n[yellow] Contents:  [/yellow]{note_list}",title="[bold magenta]<Content>[/bold magenta]", subtitle="", height=6,
                        width=100)
     console.print(display)
 
@@ -84,19 +96,91 @@ def display_dir():
 
 def display_notes(response,file_name):
     current_directory = notes_manager.notes_directory
-    count = 5
+    count = 4
     lines = response.text.split('\n')
     for i in lines: count += 1
     display = Panel(f"[bold magenta]|Current Path:[/bold magenta] \\{current_directory}\\{file_name}.txt"
                     f"\n\n{response.text}",
                     title=f"[bold magenta]<Note>[/bold magenta]",
                     subtitle="", height=count,
-                    width=100)
+                    width=120)
     console.print(display)
 
+def display_checklist():
+    # layout_left = Layout()
+    # layout_right = Layout()
+    #
+    # layout_right.update(
+    #     Panel(
+    #         "\n"
+    #         "   Checklist Menu:         \n"
+    #         "   [green]1[/green]    Add Item\n"
+    #         "   [green]2[/green]    Check Item\n"
+    #         "   [green]3[/green]    Uncheck Checklist\n"
+    #         "   [green]4[/green]    Display Checklist\n"
+    #         "   [green]5[/green]    Delete Item\n"
+    #         "   [green]6[/green]    Exit\n"
+    #         ,
+    #         title="[bold][cyan]Program Commands[/cyan][/bold]",
+    #         subtitle="", subtitle_align="right", width=20
+    #
+    #     )
+    # )
+    # layout_left.update(
+    #     Panel(
+    #         "\n"
+    #         # " {notes_manager.display_checklist(checklist_file_path)} "
+    #
+    #         ,
+    #         title="[bold][cyan]Notes Commands[/cyan][/bold]",
+    #         subtitle="", subtitle_align="left", width=60
+    #     )
+    # )
+    #
+    # console.print(layout_left)
+    # console.print(layout_right)
+
+    layout = Layout()
+    layout.split_row(Layout(name="left"), Layout(name="right"))
+
+    layout["right"].update(
+        Panel(
+            "\n"
+            "   [green]1[/green] - Add Item\n"
+            "   [green]2[/green] - Check Item\n"
+            "   [green]3[/green] - Uncheck Checklist\n"
+            "   [green]4[/green] - Display Checklist\n"
+            "   [green]5[/green] - Delete Item\n"
+            "   [green]6[/green] - Exit\n"
+            ,
+            title="[bold][cyan]Checklist Commands[/cyan][/bold]",
+            subtitle="", subtitle_align="right"
+
+        )
+    )
+    content = notes_manager.display_checklist(checklist_file_path)
+    line_count = content.count('\n') + 1
+    height_plus = 12 + line_count - 8 if line_count > 8 else 12
+    if not content:
+        content = "\n [yellow]  The checklist is currently empty.[/yellow]"
+    layout["left"].update(
+    Panel(f"\n{content}",
+        title="[bold][cyan]Checklist Items[/cyan][/bold]",
+        subtitle="", subtitle_align="left"
+    )
+
+
+    )
+    layout["left"].ratio = 3
+    layout["right"].ratio = 2
+    main_panel = Panel(layout, title="[bold magenta]<Note Taking App>[/bold magenta]", subtitle="",
+                       height=height_plus,
+                       width=100)
+    console.print(main_panel)
 
 
 def main():
+    backend_comb.cls()
     print_help()
     
     while True:
@@ -105,10 +189,15 @@ def main():
         choice = input("Enter a command: ")
         
         if choice == 'quit':
+            print("Quitting", end=' ')
+            print('.', end=' ')
+            print('.', end=' ')
+            print('.', end='\n')
+            print("Goodbye!")
             break
             
         elif choice == 'help':
-            notes_manager.cls()
+            backend_comb.cls()
             print_help()
 
         elif choice == 'note':
@@ -123,14 +212,14 @@ def main():
             note = input("Enter your note: ")
             notes_manager.add_note(file_name, note)
             notes_manager.get_notes(file_name)
-           
+
         elif choice == 'delete':
             # Deleting a file
             display()
             file_name = input("Enter name of file to delete: ")
             response = requests.delete(f'http://127.0.0.1:5000/notes/{file_name}')
             print(response.json()['message'])
-            
+
         elif choice == 'add':
             # Adding a note to a file
             display()
@@ -146,7 +235,7 @@ def main():
             if response.status_code == 201:
                 print("Note added successfully.")
             else:
-                print(f"Failed to retrieve notes: {response.json().get('error', 'Unknown Error')}")
+                print(f"Failed to retrieve notes: {response.json().get('error', 'Unknown Error')}"), 404
             
 
          
@@ -161,7 +250,7 @@ def main():
             }
             response = requests.get(f"{API_URL}/notes/print", params=params)
             if response.status_code == 200:
-                notes_manager.cls()
+                backend_comb.cls()
                 display_notes(response,file_name)
             else:
                 print(f"Failed to retrieve notes: {response.json().get('error', 'Unknown Error')}")
@@ -190,12 +279,16 @@ def main():
             # Creating a new folder
             folder_name = input("Enter name for new folder: ")
             notes_manager.create_folder(folder_name)
+            print(f"[bold magenta]|New Directory Created:[/bold magenta]")
+            print_help()
 
         elif choice == 'change':
             # Changing the current folder
             display_dir()
             folder_name = input("Enter name for folder: ")
             notes_manager.change_folder(folder_name)
+            backend_comb.cls()
+            print_help()
 
         elif choice == 'new':
             # Creating a new file
@@ -207,9 +300,64 @@ def main():
             display_dir()
             folder_name = input("Enter name of folder to delete: ")
             notes_manager.delete_folder(folder_name)
+            
+        elif choice == 'checklist':
+            print("Entering checklist mode...")
+            while True:
+                backend_comb.cls()
+                display_checklist()
+
+                checklist_choice = input("Command: ")
+                if checklist_choice == '1':
+                    item_text = input("Enter the checklist item: ")
+                    notes_manager.add_checklist_item(checklist_file_path, item_text)
+
+                elif checklist_choice == '2':
+                    item_index = int(input("Enter the index of the item to check off: "))
+                    notes_manager.check_item(checklist_file_path, item_index-1)
+
+                elif checklist_choice == '3':
+                    item_index1 = int(input("Enter the index of the item to uncheck: "))
+                    notes_manager.uncheck_item(checklist_file_path, item_index1-1)
+                elif checklist_choice == '4':
+                    notes_manager.display_checklist(checklist_file_path)
+
+                elif checklist_choice == '5':
+                    item_index = int(input("Enter the index of the item to delete: "))
+                    notes_manager.delete_checklist_choice(checklist_file_path, item_index-1)
+
+                elif checklist_choice == '6':
+                    break
+                else:
+                    print("Invalid choice. Please try again.")
+
+        elif choice == 'quiz':
+            file_name = input("Enter your file name: ")
+            try:
+                test = backend_comb.flash_cards(folder_name)
+            except UnboundLocalError:
+                test = backend_comb.flash_cards("notes_directory")
+            test.Instructions()
+            test.create_cards(test, file_name)
+            test.test(test)
+        elif choice == 'photo':
+            # Uploading a photo to a note
+            display()
+            file_name = input("Enter the filename to add the photo to: ")
+            photo_path = input("Enter the path of the photo file: ")
+            with open(photo_path, 'rb') as photo_file:
+                files = {'photo': photo_file}
+                params = {'file_name': file_name}
+                response = requests.post(f"{API_URL}/notes/add", params=params, files=files)
+                if response.status_code == 201:
+                    print("Photo added to the note successfully.")
+                else:
+                    print(f"Failed to add photo: {response.json().get('error', 'Unknown Error')}")
 
         else:
             print("Invalid command. Enter 'help' to see available commands.")
+
+        
             
 if __name__ == '__main__':
     main()
