@@ -271,7 +271,7 @@ class linked_list(Node):
             else:
                 print("Index not present")
         
-git 
+
 class flash_cards(linked_list, NoteManager):
     def __init__(self, notes_directory):
         
