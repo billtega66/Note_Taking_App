@@ -6,6 +6,7 @@ from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
 
+
 class NoteManager:
     def __init__(self, notes_directory):
         self.notes_directory = notes_directory
@@ -355,16 +356,6 @@ class flash_cards(linked_list, NoteManager):
 note_manager = NoteManager("notes_directory")
 card_pile = flash_cards("notes_directory")
 
-@app.route('/notes/add', methods=['POST'])
-def add_note_route():
-    file_name = request.args.get('file_name')
-    note = request.args.get('note')
-    password = request.args.get('password')
-    if file_name and note:
-        note_manager.add_note(file_name, note, password)
-        return jsonify({'message': 'Note added successfully'}), 201
-    else:
-        return jsonify({'error': 'Missing file_name or note parameter'}), 400
 
 @app.route('/notes/search', methods=['GET'])
 def api_search_notes():
@@ -484,3 +475,8 @@ def upload_photo():
         return jsonify({'message': 'File uploaded successfully'}), 201
     else:
         return jsonify({'error': 'Invalid file type'}), 400
+
+
+def cls():
+    clear = lambda: os.system('cls')
+    clear()
