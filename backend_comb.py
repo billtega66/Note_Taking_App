@@ -344,6 +344,16 @@ class flash_cards(linked_list, NoteManager):
 note_manager = NoteManager("notes_directory")
 card_pile = flash_cards("notes_directory")
 
+@app.route('/notes/add', methods=['POST'])
+def add_note_route():
+    file_name = request.args.get('file_name')
+    note = request.args.get('note')
+    password = request.args.get('password')
+    if file_name and note:
+        note_manager.add_note(file_name, note, password)
+        return jsonify({'message': 'Note added successfully'}), 201
+    else:
+        return jsonify({'error': 'Missing file_name or note parameter'}), 400
 
 @app.route('/notes/search', methods=['GET'])
 def api_search_notes():
@@ -374,8 +384,7 @@ def delete_note(file_name):
     note_manager.delete_file(file_name)
     return jsonify({'message': 'File deleted successfully'}), 204
 
-if __name__ == '__main__':
-    app.run(debug=True)
+
 
 # Route for adding a checklist item
 @app.route('/checklist/<file_name>', methods=['POST'])
@@ -413,20 +422,7 @@ def delete_checklist_item(file_name, item_index):
     note_manager.delete_checklist_choice(file_path, item_index)
     return jsonify({'message': 'Checklist item deleted successfully'})
 
-@app.route('/notes/add', methods=['POST'])
-def add_note_route():
-    file_name = request.args.get('file_name')
-    note_text = request.args.get('note')
-    photo_file = request.files.get('photo')
 
-    if file_name:
-        if note_text:
-            note_manager.add_note(file_name, note_text)
-        if photo_file:
-            note_manager.add_photo_to_note(file_name, photo_file)
-        return jsonify({'message': 'Note added successfully'}), 201
-    else:
-        return jsonify({'error': 'Missing file_name parameter'}), 400
     
 
 # @app.route('/create_cards', methods=['POST'])
@@ -463,3 +459,6 @@ def upload_photo():
         return jsonify({'message': 'File uploaded successfully'}), 201
     else:
         return jsonify({'error': 'Invalid file type'}), 400
+    
+if __name__ == '__main__':
+    app.run(debug=True)

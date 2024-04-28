@@ -93,24 +93,16 @@ def main():
         elif choice == 'help':
             print_help()
 
-        elif choice == 'note':
+        
+        elif choice == 'new':
             # Creating a new note
-            if len(args) >= 2:
-                file_name = args[1]
-                password_protected = input("Would you like to make this note password-protected? (yes/no): ").lower()
-                if password_protected == 'yes':
-                    password = input("Enter password for the note: ")
-                    notes_manager.create_new_file(file_name, password)
-                else:
-                    notes_manager.create_new_file(file_name)
+            file_name = input("Enter name for new file: ")
+            password_protected = input("Would you like to make this note password-protected? (yes/no): ").lower()
+            if password_protected == 'yes':
+                password = input("Enter password for the note: ")
+                notes_manager.create_new_file(file_name, password)
             else:
-                file_name = input("Enter name for new file: ")
-                password_protected = input("Would you like to make this note password-protected? (yes/no): ").lower()
-                if password_protected == 'yes':
-                    password = input("Enter password for the note: ")
-                    notes_manager.create_new_file(file_name, password)
-                else:
-                    notes_manager.create_new_file(file_name)
+                notes_manager.create_new_file(file_name)
             note = input("Enter your note: ")
             notes_manager.add_note(file_name, note)
             notes_manager.get_notes(file_name)
@@ -129,17 +121,10 @@ def main():
             
         elif choice == 'add':
             # Adding a note to a file
-            if len(args) >= 2:
-                file_name = input("Enter name of file to add note to: ")
-                note = input("Enter your note: ")
-                password = input("Enter password for the note (if applicable): ")
-            
-            else:
-                display()
-                file_name = input("Enter name of file to add note to: ")
-                note = input("Enter your note: ")
-                password = input("Enter password for the note (if applicable): ")
-
+            display()
+            file_name = input("Enter name of file to add note to: ")
+            note = input("Enter your note: ")
+            password = input("Enter password for the note (if applicable): ")
             params = {
                 'file_name': file_name,
                 'note': note,
@@ -149,7 +134,7 @@ def main():
             if response.status_code == 201:
                 print("Note added successfully.")
             else:
-                print(f"Failed to retrieve notes: {response.json().get('error', 'Unknown Error')}"), 404
+                print(f"Failed to retrieve notes: {response.json().get('error', 'Unknown Error')}")
             
 
          
@@ -173,11 +158,17 @@ def main():
             response = requests.get(f"{API_URL}/notes/print", params=params)
 
             if response.status_code == 200:
-                print("Notes:")
-                print(response.text)
-
-            else:
-                print(f"Failed to retrieve notes: {response.json().get('error', 'Unknown Error')}")
+                try:
+                    print("Notes:")
+                    print(response.text)
+                except JSONDecodeError:
+                    print("Failed to parse response from server.")
+                else:
+                    try:
+                        error_message = response.json().get('error', 'Unknown Error')
+                    except JSONDecodeError:
+                        error_message = 'Failed to parse response from server.'
+                    print(f"Error: {error_message}")
             
         elif choice == 'search':
             # Searching for notes in a file
@@ -205,13 +196,19 @@ def main():
 
             response = requests.get(f"{API_URL}/notes/search", params=params)
             if response.status_code == 200:
-                print("Search Results:")
-                notes = response.json()
-                for note in notes:
-                    print(note)
-
+                try:
+                    print("Search Results:")
+                    notes = response.json()
+                    for note in notes:
+                        print(note)
+                except JSONDecodeError:
+                    print("Failed to parse response from server.")
             else:
-                print(f"Failed to retrieve notes: {response.json().get('error', 'Unknown Error')}")
+                try:
+                    error_message = response.json().get('error', 'Unknown Error')
+                except JSONDecodeError:
+                    error_message = 'Failed to parse response from server.'
+                print(f"Error: {error_message}")
 
         elif choice == 'newf':
             # Creating a new folder
