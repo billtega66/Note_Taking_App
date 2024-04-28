@@ -151,12 +151,25 @@ class NoteManager:
         else:
             print("Folder does not exist.")
 
+    def get_dir(self):
+        directories_in_curdir = list(filter(os.path.isdir, os.listdir(os.curdir)))
+        output = []
+        for f in directories_in_curdir:
+            if not f.startswith('.'):
+                if not f.startswith('_') :
+                    output.append(f)
+
+        return output
+
+
+
+
 
 
     def add_checklist_item(self, file_path, item_text):
         """Add an item to the checklist in the file."""
         with open(file_path, 'a') as file:
-            file.write(f"[ ] {item_text}\n")
+            file.write(f"   [ ] {item_text}\n")
         print("Item added to the checklist successfully!")
 
     def check_item(self, file_path, item_index):
@@ -166,7 +179,7 @@ class NoteManager:
             lines = file.readlines()
 
         if 0 <= item_index < len(lines):
-            lines[item_index] = lines[item_index].replace("[ ]", "[x]", 1)
+            lines[item_index] = lines[item_index].replace("[ ]", "[X]", 1)
 
             with open(file_path, 'w') as file:
                 file.writelines(lines)
@@ -181,7 +194,7 @@ class NoteManager:
             lines = file.readlines()
 
         if 0 <= item_index1 < len(lines):
-            lines[item_index1] = lines[item_index1].replace("[x]", "[ ]", 1)
+            lines[item_index1] = lines[item_index1].replace("[X]", "[ ]", 1)
 
             with open(file_path, 'w') as file:
                 file.writelines(lines)
@@ -190,11 +203,9 @@ class NoteManager:
             print("Invalid item index.")
 
     def display_checklist(self, file_path):
-        """Display the checklist."""
         with open(file_path, 'r') as file:
-            print("Checklist:")
-            for index, line in enumerate(file):
-                print(f"{index}: {line.strip()}")
+            checklist_content = file.read()
+        return checklist_content
 
     def delete_checklist_choice(self, file_path, item_index):
         """Delete checklist choice"""
@@ -209,7 +220,7 @@ class NoteManager:
                 file.writelines(lines)
             print("Item deleted successfully!")
         else:
-            print("Invalid item index.") 
+            print("Invalid item index.")
 
     def add_photo_to_note(self, file_name, photo_file):
         if not file_name.endswith('.txt'):
@@ -220,17 +231,17 @@ class NoteManager:
         with open(self.get_file_path(file_name), 'a') as file:
             file.write(f"[img:{photo_path}]\n")
 
-    
-    
-class Node: 
+
+
+class Node:
     def __init__(self, question,answer):
         self.question = question
         self.answer = answer
         self.next = None
-   
 
-class linked_list(Node): 
-    def __init__ (self): 
+
+class linked_list(Node):
+    def __init__ (self):
         self.head = None
 
     def insertAtEnd(self,question,answer):
@@ -238,22 +249,22 @@ class linked_list(Node):
         if self.head is None:
             self.head = new_node
             return
-        
+
         current_node = self.head
         while (current_node.next != None):
             current_node = current_node.next
-            
-            
+
+
         current_node.next = new_node
 
-        
-    
+
+
     def remove_first_node(self):
         if(self.head == None):
             return
- 
+
         self.head = self.head.next
-        
+
     def remove_at_index(self, index):
         if self.head == None:
             return
@@ -265,21 +276,22 @@ class linked_list(Node):
             while(current_node != None and position+1 != index):
                 position = position+1
                 current_node = current_node.next
- 
+
             if current_node != None:
                 current_node.next = current_node.next.next
             else:
                 print("Index not present")
-        
+
 
 class flash_cards(linked_list, NoteManager):
     def __init__(self, notes_directory):
-        
-        linked_list.__init__(self) 
-        NoteManager.__init__(self, notes_directory)  
-        self.head = None  
+
+        linked_list.__init__(self)
+        NoteManager.__init__(self, notes_directory)
+        self.head = None
 
     def Instructions(self):
+
         print("You are attempting to run this file as flash cards. Here are some things to keep in mind to assure it runs correctly: ")
         print("1. Type the question in one line, then the answer in the next ")
         print ("2. If there is not an even number of lines in the text file, the test will not be able to run")
@@ -297,7 +309,7 @@ class flash_cards(linked_list, NoteManager):
                 length = len(lines)
                 if (length % 2 != 0):
                     print("Not enough lines to make cards")
-                    return 
+                    return
                 count = 0
                 while (count <= length - 1):
                     Q = lines[count]
@@ -312,34 +324,34 @@ class flash_cards(linked_list, NoteManager):
     def test(card_pile):
         if card_pile.head is None:
             print("PILE IS EMPTY")
-            return 
-        
+            return
+
         print("Now beginning the test...")
         print()
-        
+
         current = card_pile.head
         while ((current != None)):
             index = 0
             while ((current != None)):
-                user_input = input(current.question) 
+                user_input = input(current.question)
                 answer = current.answer
-                
+
                 if (answer.lower() == (user_input.lower() + '\n') or answer.lower() == user_input.lower()):
                     print("Correct! Removing from pile")
                     print()
-                    current = current.next 
+                    current = current.next
                     card_pile.remove_at_index(index)
-                else: 
+                else:
                     print("Incorrect. The correct answer is: %s" %current.answer)
                     print()
-                    current = current.next 
-                    index = index + 1 
+                    current = current.next
+                    index = index + 1
             current = card_pile.head
-            
-        print("All questions have been answered correctly")
-    
 
-        
+        print("All questions have been answered correctly")
+
+
+
 #############################
 note_manager = NoteManager("notes_directory")
 card_pile = flash_cards("notes_directory")
@@ -423,7 +435,6 @@ def delete_checklist_item(file_name, item_index):
     return jsonify({'message': 'Checklist item deleted successfully'})
 
 
-    
 
 # @app.route('/create_cards', methods=['POST'])
 # def create_cards():
@@ -459,6 +470,15 @@ def upload_photo():
         return jsonify({'message': 'File uploaded successfully'}), 201
     else:
         return jsonify({'error': 'Invalid file type'}), 400
+      
+def cls():
+    clear = lambda: os.system('cls')
+    clear()
     
 if __name__ == '__main__':
     app.run(debug=True)
+
+
+
+
+
