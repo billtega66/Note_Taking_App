@@ -102,7 +102,7 @@ class NoteManager:
         file_path = self.get_file_path(file_name)
         with open(file_path, 'a') as file:
             timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            file.write(f"{timestamp} - {note}\n")
+            file.write(f"{note}\n")
         
 
     def get_notes(self, file_name, password=None):
