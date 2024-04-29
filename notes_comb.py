@@ -192,6 +192,19 @@ def display_checklist():
                        width=100)
     console.print(main_panel)
 
+def display_quiz():
+    current_directory = notes_manager.notes_directory
+    dir_list = notes_manager.get_dir()
+    dir_list.remove(current_directory)
+    if not dir_list:
+        dir_list = "There exists no file."
+    display = Panel(f"[yellow]|1:Type the question in one line, then the answer in the next[/yellow]"
+                    f"\n\n[yellow]|2:If there is not an even number of lines in the text file, the test will not be able to run"
+                    f"\n\n[yellow]|3:The answers will be space sensitive, so make sure there are not extra spaces anywhere (especially at the end)"
+                    f"\n\n[yellow]|4:The flash cards will cycle through until you get all of the answers correct", title="[bold magenta]<Flashcard quiz>[/bold magenta]",
+                    subtitle="", height=10,
+                    width=120)
+    console.print(display)
 
 def main():
     backend_comb.cls()
@@ -428,12 +441,14 @@ def main():
                     print("Invalid choice. Please try again.")
 
         elif choice == 'quiz':
+            display_quiz()
             file_name = input("Enter your file name: ")
             try:
                 test = backend_comb.flash_cards(folder_name)
             except UnboundLocalError:
                 test = backend_comb.flash_cards("notes_directory")
-            test.Instructions()
+            display_quiz()
+            # test.Instructions()
             test.create_cards(test, file_name)
             test.test(test)
 
