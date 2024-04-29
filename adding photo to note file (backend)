@@ -272,8 +272,6 @@ class NoteManager:
         with open(self.get_file_path(file_name), 'a') as file:
             file.write(f"[img:{photo_path}]\n")
 
-    # Other methods remain unchanged...
-
 note_manager = NoteManager("notes_directory")
 
 @app.route('/notes/add', methods=['POST'])
@@ -334,8 +332,6 @@ class NoteManager:
         photo_file.save(photo_path)
         with open(self.get_file_path(file_name), 'a') as file:
             file.write(f"[img:{photo_path}]\n")
-
-    # Other methods remain unchanged...
 
 note_manager = NoteManager("notes_directory")
 
