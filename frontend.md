@@ -1,54 +1,46 @@
 # Note Taking App
 
-## Overview
 
-This is a command-line note-taking application built using Python. It allows users to manage their notes, create folders, and perform various operations such as adding, printing, searching, and deleting notes. The application communicates with a Flask-based backend server using HTTP requests.
+### Description
+This Python script implements a note-taking application with various functionalities such as creating, deleting, printing, and searching notes, managing folders, creating checklists, creating flashcard quizzes, uploading photos to notes, and transferring files between folders. It utilizes Flask for the backend and provides a command-line interface for user interaction.
 
-## Features
+### Dependencies
+- backend_comb
+- os
+- requests
+- rich
 
-- **Add Notes**: Users can add new notes to existing files or create new files to store their notes.
-- **Print Notes**: Users can print the contents of a specific note file.
-- **Search Notes**: Users can search for specific keywords within their note files.
-- **Delete Notes**: Users can delete individual note files.
-- **Create Folders**: Users can organize their notes by creating folders.
-- **Change Folder**: Users can switch between different folders to manage their notes.
+### Usage
+1. Clone the repository containing the Python script.
+2. Ensure that the required dependencies are installed.
+3. Run the Python script using `python filename.py`.
+4. Follow the prompts to interact with the note-taking application.
+5. Use commands like `help` to see available commands and their descriptions.
 
-## Installation
+### Functionalities
+1. **Note Management**:
+    - Create, delete, print, and search notes.
+    - Organize notes into folders.
+    - Upload photos to notes.
 
-To run the Note Taking App, follow these steps:
+2. **Folder Management**:
+    - Create and delete folders.
+    - Change the current folder.
 
-1. **Clone the Repository**: Clone this GitHub repository to your local machine using the following command:
-git clone <repository-url>
+3. **Checklist Management**:
+    - Create, display, and delete checklists.
+    - Check and uncheck items in a checklist.
 
+4. **Flashcard Quiz**:
+    - Create and manage flashcard quizzes.
 
-2. **Install Dependencies**: Navigate to the project directory and install the required dependencies using pip:
-cd note-taking-app
-pip install -r requirements.txt
+5. **File Transfer**:
+    - Transfer files between folders.
 
+### Example Usage
+```python
+python notes_comb.py
 
-3. **Run the Application**: Once the dependencies are installed, you can run the main Python file using the following command:
-python app.py
-
-This will start the application, and you can interact with it using the command-line interface.
-
-## Usage
-
-After running the application, you'll be prompted to enter commands to perform various operations. Here are the available commands:
-
-- `help`: Print the help menu with a list of available commands.
-- `note`: Create a new note and add it to a file.
-- `print`: Print the contents of a specific note file.
-- `search`: Search for specific keywords within note files.
-- `add`: Add a new note to an existing file.
-- `delete`: Delete a specific note file.
-- `newf`: Create a new folder to organize notes.
-- `change`: Switch between different folders.
-- `new`: Create a new file to store notes.
-- `deletef`: Delete a specific folder.
-
-Follow the prompts to enter the required information for each command.
-OR
-You can save time by putting the filename along with the command. This feature allows you to include the filename, seperated by a space, with the command so you can skip the step of inputting the filename separately
 
 ## Contributing
 
