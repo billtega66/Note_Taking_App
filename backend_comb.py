@@ -290,14 +290,14 @@ class flash_cards(linked_list, NoteManager):
         NoteManager.__init__(self, notes_directory)
         self.head = None
 
-    def Instructions(self):
+    # def Instructions(self):
 
-        print("You are attempting to run this file as flash cards. Here are some things to keep in mind to assure it runs correctly: ")
-        print("1. Type the question in one line, then the answer in the next ")
-        print ("2. If there is not an even number of lines in the text file, the test will not be able to run")
-        print("3. The answers will be space sensitive, so make sure there are not extra spaces anywhere (especially at the end) ")
-        print("4. The flash cards will cycle through until you get all of the answers correct")
-        print("5. Exit")
+    #     print("You are attempting to run this file as flash cards. Here are some things to keep in mind to assure it runs correctly: ")
+    #     print("1. Type the question in one line, then the answer in the next ")
+    #     print ("2. If there is not an even number of lines in the text file, the test will not be able to run")
+    #     print("3. The answers will be space sensitive, so make sure there are not extra spaces anywhere (especially at the end) ")
+    #     print("4. The flash cards will cycle through until you get all of the answers correct")
+    #     print("5. Exit")
     @staticmethod
     def create_cards(card_pile, file_name):
         if not file_name.endswith('.txt'):
