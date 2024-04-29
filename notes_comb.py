@@ -232,7 +232,6 @@ def main():
             if len(args) >= 2:
                 file_name = args[1]
             else:
-                display()
                 file_name = input("Enter name of file to delete: ")
             response = requests.delete(f'http://127.0.0.1:5000/notes/{file_name}')
             print("Delete file successful.")
