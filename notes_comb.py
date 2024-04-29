@@ -102,7 +102,7 @@ def display_transfer():
     if not dir_list:
         dir_list = "There exists no other directory."
     display = Panel(f"[bold magenta]|Current Directory:[/bold magenta] \\{current_directory}"
-                    f"\n\n[magenta] |Other Directories:  {dir_list}[/magenta]"
+                    f"\n\n[magenta]|Other Directories:  {dir_list}[/magenta]"
                     f"\n\n[yellow] File in the currend folder:  [/yellow]{note_list}",title="[bold magenta]<Directory>[/bold magenta]",
                     subtitle="", height=7,
                     width=120)
