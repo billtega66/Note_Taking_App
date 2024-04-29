@@ -447,7 +447,7 @@ def main():
                 test = backend_comb.flash_cards(folder_name)
             except UnboundLocalError:
                 test = backend_comb.flash_cards("notes_directory")
-            display_quiz()
+            
             # test.Instructions()
             test.create_cards(test, file_name)
             test.test(test)
