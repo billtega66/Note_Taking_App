@@ -78,7 +78,7 @@ def display():
     current_directory = notes_manager.notes_directory
     note_list = str(notes_manager.get_list(current_directory))
     display = Panel(f"[bold magenta]|Current Directory:[/bold magenta] \\{current_directory}"
-            f"\n\n[yellow] Contents:  [/yellow]{note_list}",title="[bold magenta]<Content>[/bold magenta]", subtitle="", height=6,
+            f"\n\n[yellow] File:  [/yellow]{note_list}",title="[bold magenta]<Note Taking App>[/bold magenta]", subtitle="", height=6,
                        width=100)
     console.print(display)
 
@@ -94,6 +94,19 @@ def display_dir():
                     width=120)
     console.print(display)
 
+def display_transfer():
+    current_directory = notes_manager.notes_directory
+    note_list = str(notes_manager.get_list(current_directory))
+    dir_list = notes_manager.get_dir()
+    dir_list.remove(current_directory)
+    if not dir_list:
+        dir_list = "There exists no other directory."
+    display = Panel(f"[bold magenta]|Current Directory:[/bold magenta] \\{current_directory}"
+                    f"\n\n[magenta] |Other Directories:  {dir_list}[/magenta]"
+                    f"\n\n[yellow] File in the currend folder:  [/yellow]{note_list}",title="[bold magenta]<Directory>[/bold magenta]",
+                    subtitle="", height=7,
+                    width=120)
+    console.print(display)
 
 def display_notes(response,file_name):
     current_directory = notes_manager.notes_directory
@@ -273,7 +286,6 @@ def main():
 
             else:
 
-                display()
                 file_name = input("Enter the filename: ")
                 password = input("Enter password (if any): ")
 
@@ -294,8 +306,7 @@ def main():
                     try:
                         error_message = response.json().get('error', 'Unknown Error')
                     except JSONDecodeError:
-                        error_message = 'Failed to parse response from server.'
-                    print(f"Error: {error_message}")
+                        pass
             
         elif choice == 'search':
             # Searching for notes in a file
@@ -312,7 +323,6 @@ def main():
                 password = input("Enter password (if any): ")
 
             else:
-                display()
                 file_name = input("Enter the filename: ")
                 query = input("Enter the search query: ")
                 password = input("Enter password (if any): ")
@@ -445,6 +455,28 @@ def main():
                     print("Photo added to the note successfully.")
                 else:
                     print(f"Failed to add photo: {response.json().get('error', 'Unknown Error')}")
+
+        elif choice == 'transfer':
+            display_transfer()
+            if len(args) == 3:
+                file_name = args[1]
+                target_folder = args[2]
+            else:
+                file_name = input("Enter the name of the file to transfer (e.g., file.txt): ")
+                target_folder = input("Enter the name of the target folder: ")
+
+            try:
+                data = {
+                    "file_name": file_name,
+                    "folder_name": target_folder
+                }
+                response = requests.post(f"{API_URL}/transfer", json=data)
+                if response.status_code == 200:
+                    print("File transferred successfully.")
+                else:
+                    print(f"Failed to transfer file: {response.json().get('error', 'Unknown Error')}")
+            except requests.exceptions.RequestException as e:
+                print(f"Error: {e}")
 
         else:
             print("Invalid command. Enter 'help' to see available commands.")

@@ -470,7 +470,21 @@ def upload_photo():
         return jsonify({'message': 'File uploaded successfully'}), 201
     else:
         return jsonify({'error': 'Invalid file type'}), 400
-      
+@app.route('/transfer', methods=['POST'])
+def transfer_file():
+    data = request.get_json()
+    file_name = data.get('file_name')
+    folder_name = data.get('folder_name')
+
+    if not file_name or not folder_name:
+        return jsonify({"error": "Missing file_name or folder_name parameter."}), 400
+
+    try:
+        result = note_manager.transfer_folder(file_name, folder_name)
+        return jsonify(result), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 def cls():
     clear = lambda: os.system('cls')
     clear()
