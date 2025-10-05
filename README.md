@@ -1,4 +1,4 @@
-# Note Taking App (README for Backend)
+# Note Taking App 
 
 
 ## Overview
@@ -42,6 +42,7 @@ To start using the `NoteManager`, initialize it with the path to the directory w
 ## Usage
 
 To use these commands, run the `main` function and enter the desired command followed by the necessary information as prompted. The system supports creating, modifying, and managing notes and folders in a user-specified directory.
+
 
 
 
